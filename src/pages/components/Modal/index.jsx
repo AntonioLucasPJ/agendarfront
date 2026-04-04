@@ -1,5 +1,6 @@
 import styles from './Modal.module.css'
-export function Modal({ titulo, description, onclick }) {
+import trash from  './src/trash.png'
+export function Modal({ titulo, description, onclick,returnhome}) {
     return (
         <div className={styles.layout_overlay}>
             <div className={styles.background}>
@@ -13,7 +14,7 @@ export function Modal({ titulo, description, onclick }) {
                 </div>
                 <button
                     className={styles.btn_concluir}
-                    onClick={() => console.log('teste')}
+                    onClick={returnhome}
                 >Return Home</button>
             </div>
         </div>
@@ -22,11 +23,12 @@ export function Modal({ titulo, description, onclick }) {
 export function ModalDelete({ titulo, description, onclick, ondelete }) {
     return (
         <div className={styles.layout_overlay}>
-            <div className={styles.background}>
+            <div className={styles.backgrounddelete}>
                 <div className={styles.closepopup}>
                     <button className={styles.btn_closepop}
                         onClick={onclick}>X</button>
                 </div>
+                <img className={styles.trashicon} src={trash}></img>
                 <div className={styles.modal}>
                     <h1>{titulo}</h1>
                     <p>{description}</p>

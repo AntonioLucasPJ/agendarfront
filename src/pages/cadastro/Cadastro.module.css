@@ -5,69 +5,219 @@
 }
 
 .divlogo {
-    width: 30%;
-    height: 30%;
+    width: 100px;
+    height: 100px;
+    margin-top: 10px;
 }
-.title{
-    font-size: 3rem;
-    color: #2771c7;
+
+.title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
 }
+
 .logo {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
+}
+
+p {
+    color: #fff;
 }
 
 .container {
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    background-image: url('./img/mecanicoslogin.jpg');
+    background-size: cover;
+    background-position: center;
 }
 
-.forminput {
-    width: 50vw;
-    height: 100vh;
+.content {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-.inputdiv{
-    width: 100%;
+
+.formulario {
+    width: 350px;
+    height: 450px;
+    max-width: 100%;
+    margin-top: 30px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap:15px
-}
-.containerimg {
-    width: 50%;
-    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    gap: 10px
 }
 
-.imgvisual {
+.itensformulario {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
-input {
-    width: 50%;
-    height: 50px;
-    border-radius: 5px;
+.divitens {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+.divitens input {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
     border: 1px solid rgba(63, 62, 62, 0.3);
     padding: 10px;
     font-size: 18px;
     outline: none;
 }
-.btn_acess{
-    width: 50%;
-    height: 40px;
-    border: none;
-    border-radius: 10px;
+
+.divitens i {
+    position: absolute;
+    left: 90%;
+    color: #000000;
+    font-size: 20px;
+}
+
+.btn_acess {
+    width: 80%;
+    height: 50px;
+    border-radius: 15px;
     font-weight: bold;
-    margin:20px 0px 20px 0px;
+    border: none;
+    margin: 20px 0px 20px 0px;
     background-color: rgb(101, 157, 241);
     color: #fff;
 }
-.btn_acess:hover{
+
+.btn_acess:hover {
     background-color: #2771c7;
+}
+
+.btn_acess:disabled {
+    background-color: #b9a5a5;
+}
+
+.linktext {
+    text-decoration: none;
+    font-weight: bold;
+    color: #fff
+}
+
+.linktext:hover {
+    text-decoration: underline;
+}
+
+.icontext {
+    width: 4%;
+    display: flex;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+@media (min-width:768px) {
+    .divlogo {
+        width: 300px;
+        height: 300px;
+        margin-top: 10px;
+    }
+
+    .logo {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+    }
+
+    .title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+        color: #ffffff;
+    }
+
+    .container {
+        display: block;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .formulario {
+        width: 400px;
+        height: 600px;
+        max-width: 100%;
+        display: flex;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px
+    }
+
+    .itensformulario {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .divitens {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 30px;
+        gap: 5px;
+    }
+
+    .divitens input {
+        width: 100%;
+        height: 45px;
+        border-radius: 15px;
+    }
+
+    .divitens i {
+        position: absolute;
+        left: 85%;
+        font-size: 20px;
+        color: #000000;
+    }
+
+    .itensformulario {
+        border-radius: 5px;
+        border: 1px solid rgba(63, 62, 62, 0.3);
+        font-size: 18px;
+        outline: none;
+    }
+
+    .btn_acess {
+        width: 50%;
+        height: 50px;
+        border-radius: 30px;
+        font-weight: bold;
+        border: none;
+        margin: 20px 0px 20px 0px;
+        background-color: rgb(101, 157, 241);
+        color: #fff;
+    }
+
+    .linktext {
+        color: #fff;
+    }
 }

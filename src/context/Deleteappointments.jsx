@@ -11,7 +11,6 @@ export const ProviderDeleteAppointments = ({ children }) => {
         const token = localStorage.getItem("token")
         if (token) {
             const decode = jwtDecode(token)
-            const id_user = decode.sub || decode.id
             try {
                 const response = await api.delete(`/appointments/delete/${id}`)
                 setalertmsg(true)

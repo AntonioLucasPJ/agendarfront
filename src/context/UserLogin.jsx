@@ -1,6 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../service/api";
 import { LoadingScreen } from "../pages/components/loading";
+import { data } from "react-router";
+import { da } from "date-fns/locale";
 
 export const UserContext = createContext()
 export const UserProvider = ({ children }) => {
@@ -10,7 +12,9 @@ export const UserProvider = ({ children }) => {
     const [user, setuser] = useState('')
     const [showtext, setshowtext] = useState(false)
     const [message, setmessage] = useState('')
+    const [name,setname] = useState('')
     const [email, setemail] = useState('')
+    const [telefone,settelefone] = useState('')
     const [password, setpassword] = useState('')
     const [messageativa, setmessageativa] = useState(false)
     const [loading, setloading] = useState(true)
@@ -22,12 +26,39 @@ export const UserProvider = ({ children }) => {
         }
         setloading(false)
     }, [])
-    
+
     const HandleLogin = async () => {
         try {
-            const response = await api.post('/users/login', {
+            const response = await api.post('/admin/login', {
                 email,
                 password
+            })
+            if (response.status == 200) {
+                const name = response.data.name
+                const tokenrecebido = response.data.token
+                localStorage.setItem('token', tokenrecebido)
+                localStorage.setItem('name', JSON.stringify(name))
+                setuserinfor(response.data)
+                setuser(name)
+                settoken(tokenrecebido)
+                setauthorizate(true)
+                api.defaults.headers.Authorization = `Bearer ${token}`
+                return true
+            }
+
+        } catch (error) {
+            const st = error.status
+            setmessageativa(!messageativa)
+            return setmessage(`${st} - ${error.response.data.message}`)
+        }
+    }
+    const CreateSingup = async () => {
+        try {
+            const response = await api.post('/admin', {
+                name,
+                email,
+                password,
+                telefone,
             })
             if (response.status == 200) {
                 const name = response.data.name
@@ -52,6 +83,20 @@ export const UserProvider = ({ children }) => {
         return <LoadingScreen></LoadingScreen>
     }
     return (
-        <UserContext.Provider value={{ userinfor, loading, authorizate, token, user, setauthorizate, messageativa,setmessageativa, message, showtext, setshowtext, email, password, setemail, setpassword, HandleLogin }}>{children}</UserContext.Provider>
+        <UserContext.Provider value={{
+            userinfor, 
+            loading,
+            authorizate,
+            token,
+            user,
+            setauthorizate,
+            messageativa, setmessageativa,
+            message, showtext,
+            setshowtext,
+            email, 
+            telefone,settelefone,
+            password,
+            name,setname,
+            setemail, setpassword, HandleLogin,CreateSingup }}>{children}</UserContext.Provider>
     )
 }

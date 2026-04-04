@@ -71,13 +71,13 @@ export default function Login() {
                             <i className="bi bi-person-circle"></i>
                         </div>
                         <div className={styles.divitens}>
-                            <input required={true} type={showtext ? '' : 'password'} placeholder='Senha...' onChange={(e) => setpassword(e.target.value)}></input>
+                            <input disabled={email ==''?true:false} required={true} type={showtext ? '' : 'password'} placeholder='Senha...' onChange={(e) => setpassword(e.target.value)}></input>
                             <i onClick={(e) => setshowtext(!showtext)} className={showtext ? "bi bi-unlock" : "bi bi-lock"}></i>
                         </div>
 
                     </div>
                     <button className={styles.btn_acess} type='submit'
-                        disabled={!email && !password ? true : false}
+                        disabled={password ==''?true : false}
                     >Acessar</button>
                     <p>Não tem conta? <Link to='/singup' className={styles.linktext}>Criar conta agora</Link></p>
                 </form>

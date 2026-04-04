@@ -14,7 +14,10 @@
     align-items: center;
     color: #b04747;
 }
+.nav-link {
+    color: #bbbbbb;
+}
 .nav-link:hover{
-    color:#fff;
+    text-decoration: underline;
 
 }

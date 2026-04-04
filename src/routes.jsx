@@ -8,10 +8,13 @@ import { NewAppProvider } from "./context/Newappointments.jsx";
 import { RoutesProtect } from "./RoutesProtect.jsx";
 import { UserProvider } from "./context/UserLogin.jsx";
 import { ProviderDeleteAppointments } from "./context/Deleteappointments.jsx";
+import PageMecanicos from "./pages/mecanicos/index.jsx";
+import { MecanicosProvider } from "./context/Mecanicos.jsx";
 
 export const Rotas = () => {
     return (
         <UserProvider>
+            <MecanicosProvider>
             <ProviderDeleteAppointments>
                 <NewAppProvider>
                     <BrowserRouter>
@@ -37,10 +40,17 @@ export const Rotas = () => {
                                     </RoutesProtect>
                                 </NewAppProvider>
                             }></Route>
+                            <Route path="/mecanicos" element={
+                                <RoutesProtect>
+                                    <PageMecanicos></PageMecanicos>
+                                </RoutesProtect>
+                            }>
+                            </Route>
                         </Routes>
                     </BrowserRouter>
                 </NewAppProvider>
             </ProviderDeleteAppointments>
+            </MecanicosProvider>
         </UserProvider>
     )
 }

@@ -42,7 +42,7 @@ p {
 
 .formulario {
     width: 350px;
-    height: 300px;
+    height: 400px;
     max-width: 100%;
     margin-top: 30px;
     display: flex;
@@ -72,8 +72,8 @@ p {
 }
 .divitens input {
     width: 100%;
-    height: 50px;
-    border-radius: 25px;
+    height: 40px;
+    border-radius: 10px;
     border: 1px solid rgba(63, 62, 62, 0.3);
     padding: 10px;
     font-size: 18px;
@@ -81,14 +81,14 @@ p {
 }
 .divitens i {
     position: absolute;
-    left: 80%;
-    color: #f3f3f3;
+    left: 90%;
+    color: #000000;
     font-size: 20px;
 }
 .btn_acess {
     width: 80%;
-    height: 80px;
-    border-radius: 10px;
+    height: 50px;
+    border-radius: 15px;
     font-weight: bold;
     border: none;
     margin: 20px 0px 20px 0px;
@@ -165,6 +165,7 @@ p {
     .itensformulario {
         width: 100%;
         display: flex;
+        border: none;
         flex-direction: column;
         gap: 5px;
     }   
@@ -179,7 +180,7 @@ p {
     .divitens input{
         width: 100%;
         height: 45px;
-        border-radius: 25px;
+        border-radius: 15px;
     }
     .divitens i {
         position:absolute;
@@ -196,7 +197,7 @@ p {
 
     .btn_acess {
         width: 50%;
-        height: 40px;
+        height: 50px;
         border-radius: 30px;
         font-weight: bold;
         border: none;
