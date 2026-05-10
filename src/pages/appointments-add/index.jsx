@@ -82,7 +82,7 @@ export default function AppointmentAdd() {
                 setactivenotification(false)
                 navigate('/appointments')
             }, 5000)
-            return () =>clearTimeout(timer)
+            return () => clearTimeout(timer)
         }
     }, [activenotification])
     useEffect(() => {
@@ -132,119 +132,121 @@ export default function AppointmentAdd() {
     }, [id_mecanico])
     return (
         <>
-            <div className="container-fluid mt-page">
+            <Navbar></Navbar>
+            <main className="container mt-5 pt-5 pb-5">
                 {loading && (
                     <LoadingScreen></LoadingScreen>
                 )}
-                <Navbar></Navbar>
-                <div className="row col-lg-4 offset-lg-4">
-                    <div className="col-12">
-                        <h2>{id_appointement > 0 ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
-                    </div>
-                    <div className="col-12 mt-2">
-                        {
-                            activenotification ?
-                                <Modal
-                                    titulo='Agendamento Realizado!!!'
-                                    description={notification}
-                                    onclick={(e) => setactivenotification(!activenotification)}
-                                    returnhome={() => ReturnHome()}></Modal>
-                                : ''
-                        }
-                        {
-                            id_appointement > 0 ?
-                                <div>
-                                    <label htmlFor="client" className="form-label">Cliente</label>
-                                    <div className="form-control mb-2">
-                                        <option disabled={true} value='1'>{name}</option>
-                                    </div>
-                                </div>
-                                :
-                                <div>
-                                    <label htmlFor="client" className="form-label">Cliente</label>
-                                    <div className="form-control mb-2">
-                                        <select
-                                            className="form-select"
-                                            name="client" id='client' onChange={(e) => { setid_user(e.target.value) }}>
-                                            <option >Selecione Cliente</option>
-                                            {clientsapi.map(c => {
-                                                return <option key={c.id_user} value={c.id_user}>{c.name}</option>
-                                            })}
-                                        </select>
-                                    </div>
-                                </div>
-                        }
-                        <label htmlFor="mecanico" className="form-label">Mecanico</label>
-                        <div className="form-control mb-2">
-                            <select className="form-select" name="Mecanico" id='mecanico' onChange={(e) => { setidmecanico(e.target.value) }}>
-                                <option value=''>Selecione um profissional...</option>
-                                {mecanicosapi.map(item => {
-                                    return <option key={item.id_mecanico} value={item.id_mecanico}>{item.name}</option>
-                                })}
-                            </select>
+                <div className="row justify-content-center">
+                    <div className="col-10 col-md-10 col-lg-5 bg-white p-4 rounded-4 shadow-sm border">
+                        <div className="text-center mb-3">
+                            <h2 className="text-primary user-select-none fw-bold">
+                                {id_appointement > 0 ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
                         </div>
-                    </div>
-                    <div className="col-12 mt-4">
-                        <label htmlFor="servicos" className="form-label">Servicos</label>
-                        <div className="form-control mb-2">
-                            {serviceapi.length == 0 ?
-                                <option disabled={true}>Selecione primeiro o mecanico</option>
-                                :
-                                <select className="form-select" name="Mecanico" id='mecanico' onChange={(e) => setidservice(e.target.value)}>
-                                    {serviceapi.map(item => {
-                                        return (
-                                            <option key={item.id_service} value={item.id_service}>{item.description}</option>
-                                        )
+                        <div>
+                            {
+                                activenotification ?
+                                    <Modal
+                                        titulo='Agendamento Realizado!!!'
+                                        description={notification}
+                                        onclick={(e) => setactivenotification(!activenotification)}
+                                        returnhome={() => ReturnHome()}></Modal>
+                                    : ''
+                            }
+                            {
+                                id_appointement > 0 ?
+                                    <div className="col-md-6">
+                                        <label htmlFor="client" className="form-label">Cliente</label>
+                                        <div className="form-control mb-2">
+                                            <option disabled={true} value='1'>{name}</option>
+                                        </div>
+                                    </div>
+                                    :
+                                    <div>
+                                        <label htmlFor="client" className="form-label">Cliente</label>
+                                        <div className="form-control mb-2">
+                                            <select
+                                                className="form-select"
+                                                name="client" id='client' onChange={(e) => { setid_user(e.target.value) }}>
+                                                <option >Selecione Cliente</option>
+                                                {clientsapi.map(c => {
+                                                    return <option key={c.id_user} value={c.id_user}>{c.name}</option>
+                                                })}
+                                            </select>
+                                        </div>
+                                    </div>
+                            }
+                            <label htmlFor="mecanico" className="form-label">Mecanico</label>
+                            <div className="form-control mb-3">
+                                <select className="form-select" name="Mecanico" id='mecanico' onChange={(e) => { setidmecanico(e.target.value) }}>
+                                    <option value=''>Selecione um profissional...</option>
+                                    {mecanicosapi.map(item => {
+                                        return <option key={item.id_mecanico} value={item.id_mecanico}>{item.name}</option>
                                     })}
                                 </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="servicos" className="form-label">Servicos</label>
+                            <div className="form-control mb-2">
+                                {serviceapi.length == 0 ?
+                                    <option disabled={true}>Selecione primeiro o mecanico</option>
+                                    :
+                                    <select className="form-select" name="Mecanico" id='mecanico' onChange={(e) => setidservice(e.target.value)}>
+                                        {serviceapi.map(item => {
+                                            return (
+                                                <option key={item.id_service} value={item.id_service}>{item.description}</option>
+                                            )
+                                        })}
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                        <div className="d-flex ">
+                            <label htmlFor="bookingDate" className="form-label">Data</label>
+                            <DatePicker
+                                className="form-control w-40"
+                                selected={selectdata}
+                                disabled={serviceapi.length == 0 ? true : false}
+                                locale='pt-BR'
+                                onChange={(date) => setselectdata(date)}
+                                filterDate={(apenasdiasuteis)}
+                                minDate={new Date()}
+                                dateFormat="dd/MM/yyyy"
+                                placeholderText='dd/mm/yyyy'
+                                showTimeSelect={false}
+                            ></DatePicker>
+                        </div>
+                        <div className="col-md-4 d-flex flex-colum align-items-center justify-content-center">
+                            <label htmlFor="bookingHour" className="form-label align-self-start mb-3">Horarios</label>
+                            {selectdata ?
+                                <select className="form-select rounded px-3" required={true} value={booking_hour} onChange={(e) => setbookhours(e.target.value)}>
+                                    {horariosdisponiveis.map(item => {
+                                        return <option key={item}>{item}</option>
+                                    })}
+                                </select>
+                                :
+                                <div className="form-select rounded px-3" required={true} value={booking_hour} onChange={(e) => setbookhours(e.target.value)}>
+                                    <option disabled={true}>Check...</option>
+                                </div>
+
                             }
                         </div>
-                    </div>
-                    <div className="col-6">
-                        <label htmlFor="bookingDate" className="form-label">Data</label>
-                        <DatePicker
-                            className="form-control w-40"
-                            selected={selectdata}
-                            disabled={serviceapi.length == 0 ? true : false}
-                            locale='pt-BR'
-                            onChange={(date) => setselectdata(date)}
-                            filterDate={(apenasdiasuteis)}
-                            minDate={new Date()}
-                            dateFormat="dd/MM/yyyy"
-                            placeholderText='dd/mm/yyyy'
-                            showTimeSelect={false}
-                        ></DatePicker>
-                    </div>
-                    <div className="col-6">
-                        <label htmlFor="bookingHour" className="form-label">Hora</label>
-                        {horariosdisponiveis.length == 0 ?
-                            <option disabled={true}>Horarios</option>
-                            :
-                            <select className="form-select rounded px-3" disabled={selectdata.length === 0} required={true} value={booking_hour} onChange={(e) => setbookhours(e.target.value)}>
-                                {horariosdisponiveis.map(item => {
-                                    return (
-                                        <option key={item} value={item}>{item}</option>
-                                    )
-                                })}
-                            </select>
-
-                        }
-
-                    </div>
-                    <div className="col-12 mt-3">
-                        <div className="d-flex justify-content-end">
-                            <Link to='/appointments' className='btn btn-outline-primary me-3'>
-                                Cancelar
-                            </Link>
-                            <button
-                                className="btn btn-primary"
-                                onClick={id_appointement > 0 ? Edit : LoadNewAppointments}
-                                disabled={horariosdisponiveis.length == 0 ? true : false}
-                            >{id_appointement > 0 ? 'Editar Dados' : 'Salvar Dados'}</button>
+                        <div className="col-12 mt-3">
+                            <div className="d-flex justify-content-end">
+                                <Link to='/appointments' className='btn btn-outline-primary me-3'>
+                                    Cancelar
+                                </Link>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={id_appointement > 0 ? Edit : LoadNewAppointments}
+                                    disabled={horariosdisponiveis.length == 0 ? true : false}
+                                >{id_appointement > 0 ? 'Editar Dados' : 'Salvar Dados'}</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </>
 
     )

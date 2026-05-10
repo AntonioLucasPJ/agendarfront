@@ -138,13 +138,13 @@ function Appointments() {
             <Navbar></Navbar>
             <div className='d-flex justify-content-between align-items-center'>
                 <div>
-                    <h2 className="d-inline">Agendamentos</h2>
+                    <h2 className="d-inline user-select-none">Agendamentos</h2>
                     <Link
                         className='btn btn-outline-primary ms-5 mb-2'
                         to="/appointments/add"
                     >Novo Agendamento</Link>
                 </div>
-                <div className='d-flex justify-content-end align-items-center'>
+                <div className='d-flex justify-content-end align-items-center user-select-none'>
                     <input id='startDate'
                         onChange={(e) => setbooking_date_begin(e.target.value)}
                         className='form-control'
@@ -160,14 +160,13 @@ function Appointments() {
                             {mecanicosapi.map(item => {
                                 return <option key={item.id_mecanico} value={item.id_mecanico}>{item.name}</option>
                             })}
-                        </select>
+                        </select>   
                     </div>
-
-                    <button className='btn btn-primary' onClick={() => Filtrar()}>Filtrar</button>
+                    <button className='btn btn-primary' disabled={booking_date_begin && booking_date_end?false:true} onClick={() => Filtrar()}>Filtrar</button>
                 </div>
             </div>
-            <div>
-                <table className="table table-hover">
+            <div className="user-select-none">
+                <table className="table table-hover user-select-none">
                     <thead>
                         <tr>
                             <th scope="col">Cliente</th>

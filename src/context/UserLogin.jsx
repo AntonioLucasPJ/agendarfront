@@ -37,7 +37,7 @@ export const UserProvider = ({ children }) => {
                 const name = response.data.name
                 const tokenrecebido = response.data.token
                 localStorage.setItem('token', tokenrecebido)
-                localStorage.setItem('name', JSON.stringify(name))
+                localStorage.setItem('name', name)
                 setuserinfor(response.data)
                 setuser(name)
                 settoken(tokenrecebido)

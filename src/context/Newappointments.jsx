@@ -74,6 +74,7 @@ export const NewAppProvider = ({ children }) => {
     }
     async function Checkhorario() {
         const booking_date = new Date(selectdata).toISOString().split('T')[0]
+        
         const horarios_totais = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00']
         const res = await api.post('/appointements/check', {
             id_mecanico,
