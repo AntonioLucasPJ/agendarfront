@@ -11,5 +11,4 @@ function App() {
     <Rotas></Rotas>
   )
 }
-
 export default App

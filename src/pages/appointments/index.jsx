@@ -22,7 +22,7 @@ function Appointments() {
     const [loading, setloading] = useState(true)
     /// Change Page
     const paginate = (Number) => setCurrentPage(Number)
-
+    const [error, seterror] = useState(false)
     const [mecanicosapi, setmecanicosapi] = useState([])
     const [id_mecanico, setidmecanico] = useState('')
     const [deleteauth, setdeleteauth] = useState(false)
@@ -73,17 +73,22 @@ function Appointments() {
         // }
         carregartela()
         // dadosapi()
-    }, [token, authorizate, DeleteAppointments,CurrentPage])
+    }, [token, authorizate, DeleteAppointments, CurrentPage])
 
     //Appointment Get All
     async function LoadDateapi(token) {
-        api.defaults.headers.Authorization = `Bearer ${token}`
-        const res = await api.get('/appointmentsall')
-        setpost(res.data)
-        const indexoflastpost = CurrentPage * postPerPage
-        const indexoffirtpost = indexoflastpost - postPerPage
-        const currentPost = res.data.slice(indexoffirtpost, indexoflastpost)
-        setappointmentsbd(currentPost)
+        try {
+            api.defaults.headers.Authorization = `Bearer ${token}`
+            const res = await api.get('/appointmentsall')
+            setpost(res.data)
+            const indexoflastpost = CurrentPage * postPerPage
+            const indexoffirtpost = indexoflastpost - postPerPage
+            const currentPost = res.data.slice(indexoffirtpost, indexoflastpost)
+            setappointmentsbd(currentPost)
+        } catch (error) {
+            seterror(true)
+        }
+
     }
     function Editar(id_appointement, client) {
         navigate("/appointments/edit/" + id_appointement, {
@@ -136,78 +141,97 @@ function Appointments() {
                 <AlertMessage msg={message}></AlertMessage>
             )}
             <Navbar></Navbar>
-            <div className='d-flex justify-content-between align-items-center'>
+            {!loading && error && (
+                <div className="container-fluid d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '75vh' }}>
+                    <span style={{ fontSize: '24px' }}>⚠️</span>
+                    <h4 className="fw-bold text-dark mt-2" style={{ letterSpacing: "-0.5px" }}>Falha ao carregar dados</h4>
+                    <div className="text-muted small mb-3">Não foi possivel conectar ao servidor</div>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="btn btn-sm btn-outline-primary rounded-3"
+                    >
+                        Tente Novamente
+                    </button>
+                </div>
+            )
+            }
+            {appointmentsbd.length > 0 && (
                 <div>
-                    <h2 className="d-inline user-select-none">Agendamentos</h2>
-                    <Link
-                        className='btn btn-outline-primary ms-5 mb-2'
-                        to="/appointments/add"
-                    >Novo Agendamento</Link>
-                </div>
-                <div className='d-flex justify-content-end align-items-center user-select-none'>
-                    <input id='startDate'
-                        onChange={(e) => setbooking_date_begin(e.target.value)}
-                        className='form-control'
-                        type="date"></input>
-                    <span className="m-3">Até</span>
-                    <input id='startDate'
-                        onChange={(e) => setbooking_date_end(e.target.value)}
-                        className='form-control'
-                        type="date"></input>
-                    <div className="form-control ms-3 me-3 h-50">
-                        <select className="w-auto" name="Mecanico" id='mecanico' onChange={(e) => setfiltermecanico(e.target.value)}>
-                            <option value="" className={styles.opvalues}>Todos os mecanicos</option>
-                            {mecanicosapi.map(item => {
-                                return <option key={item.id_mecanico} value={item.id_mecanico}>{item.name}</option>
-                            })}
-                        </select>   
+                    <div className='d-flex justify-content-between align-items-center'>
+                        <div>
+                            <h2 className="d-inline user-select-none">Agendamentos</h2>
+                            <Link
+                                className='btn btn-outline-primary ms-5 mb-2'
+                                to="/appointments/add"
+                            >Novo Agendamento</Link>
+                        </div>
+                        <div className='d-flex justify-content-end align-items-center user-select-none'>
+                            <input id='startDate'
+                                onChange={(e) => setbooking_date_begin(e.target.value)}
+                                className='form-control'
+                                type="date"></input>
+                            <span className="m-3">Até</span>
+                            <input id='startDate'
+                                onChange={(e) => setbooking_date_end(e.target.value)}
+                                className='form-control'
+                                type="date"></input>
+                            <div className="form-control ms-3 me-3 h-50">
+                                <select className="w-auto" name="Mecanico" id='mecanico' onChange={(e) => setfiltermecanico(e.target.value)}>
+                                    <option value="" className={styles.opvalues}>Todos os mecanicos</option>
+                                    {mecanicosapi.map(item => {
+                                        return <option key={item.id_mecanico} value={item.id_mecanico}>{item.name}</option>
+                                    })}
+                                </select>
+                            </div>
+                            <button className='btn btn-primary' disabled={booking_date_begin && booking_date_end ? false : true} onClick={() => Filtrar()}>Filtrar</button>
+                        </div>
                     </div>
-                    <button className='btn btn-primary' disabled={booking_date_begin && booking_date_end?false:true} onClick={() => Filtrar()}>Filtrar</button>
-                </div>
-            </div>
-            <div className="user-select-none">
-                <table className="table table-hover user-select-none">
-                    <thead>
-                        <tr>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Mecanico</th>
-                            <th scope="col">Serviço</th>
-                            <th scope="col">Data/Hora</th>
-                            <th scope="col" className="text-end">Valor</th>
-                            <th scope="col" className={styles.colbuttons}></th>
-                        </tr>
-                    </thead>
-                    {appointmentsbd && (
-                        <tbody>
-                            {appointmentsbd.map(item => {
-                                return (
-                                    <Appointment
-                                        key={item.id_appointment}
-                                        id_appointement={item.id_appointment}
-                                        client={item.client}
-                                        service={item.service}
-                                        mecanico={item.mecanico}
-                                        booking_date={item.booking_date}
-                                        booking_hour={item.booking_hour}
-                                        price={item.price}
-                                        clickedit={Editar}
-                                        clickdelete={Delete}
-                                    ></Appointment>
-                                )
-                            })}
-                        </tbody>
-                    )}
-                </table>
-                <Pagination postPerPage={postPerPage} totalPost={post.length} paginate={paginate}></Pagination>
-                {appointmentsbd == '' ?
-                    <div className={styles.contentempty}>
-                        <h1>Dados não carregados</h1>
-                        <button
-                            className={styles.rcgbutton}
-                            onClick={(e) => console.log('')}>Atualizar Pagina</button>
+                    <div className="user-select-none">
+                        <table className="table table-hover user-select-none">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Mecanico</th>
+                                    <th scope="col">Serviço</th>
+                                    <th scope="col">Data/Hora</th>
+                                    <th scope="col" className="text-end">Valor</th>
+                                    <th scope="col" className={styles.colbuttons}></th>
+                                </tr>
+                            </thead>
+                            {appointmentsbd && (
+                                <tbody>
+                                    {appointmentsbd.map(item => {
+                                        return (
+                                            <Appointment
+                                                key={item.id_appointment}
+                                                id_appointement={item.id_appointment}
+                                                client={item.client}
+                                                service={item.service}
+                                                mecanico={item.mecanico}
+                                                booking_date={item.booking_date}
+                                                booking_hour={item.booking_hour}
+                                                price={item.price}
+                                                clickedit={Editar}
+                                                clickdelete={Delete}
+                                            ></Appointment>
+                                        )
+                                    })}
+                                </tbody>
+                            )}
+                        </table>
+                        <Pagination postPerPage={postPerPage} totalPost={post.length} paginate={paginate}></Pagination>
+                        {appointmentsbd == '' ?
+                            <div className={styles.contentempty}>
+                                <h1>Dados não carregados</h1>
+                                <button
+                                    className={styles.rcgbutton}
+                                    onClick={(e) => console.log('')}>Atualizar Pagina</button>
+                            </div>
+                            : ''}
                     </div>
-                    : ''}
-            </div>
+                </div>
+            )}
+
         </div>
     )
 }

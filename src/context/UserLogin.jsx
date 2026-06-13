@@ -3,6 +3,7 @@ import { api } from "../service/api";
 import { LoadingScreen } from "../pages/components/loading";
 import { data } from "react-router";
 import { da } from "date-fns/locale";
+import { set } from "date-fns";
 
 export const UserContext = createContext()
 export const UserProvider = ({ children }) => {
@@ -26,7 +27,6 @@ export const UserProvider = ({ children }) => {
         }
         setloading(false)
     }, [])
-
     const HandleLogin = async () => {
         try {
             const response = await api.post('/admin/login', {
@@ -47,9 +47,13 @@ export const UserProvider = ({ children }) => {
             }
 
         } catch (error) {
+            console.log('Error')
             const st = error.status
+            console.log(error.status)
             setmessageativa(!messageativa)
-            return setmessage(`${st} - ${error.response.data.message}`)
+            const generalerror = 'conection not estabelishe with server'
+            const analisterror = error.response.data.message || generalerror
+            return setmessage(`${st} - ${analisterror}`)
         }
     }
     const CreateSingup = async () => {

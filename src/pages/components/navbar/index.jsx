@@ -19,7 +19,7 @@ export function Navbar() {
         <nav className="navbar fixed-top navbar-expand-lg bg-primary">
             <div className='container-fluid d-flex justify-content-between align-items-center'>
                 <Link className='navbar-brand user-select-none' to='/appointments'>
-                    <img className='navbarlogo user-select-none' src={logo} style={{height:'50px',width:"auto"}}></img>
+                    <img className='navbarlogo user-select-none' src={logo} style={{ height: '50px', width: "auto" }}></img>
                 </Link>
                 <button
                     className="navbar-toggler"
@@ -33,10 +33,13 @@ export function Navbar() {
                 <div className='collapse navbar-collapse' id='navbarSupportedContent'>
                     <ul className='navbar-nav me-auto mb-2 mg-lg-0'>
                         <li className="nav-item user-select-none">
-                            <Link className="nav-link active text-white" to='/appointments'><i class="bi bi-calendar3"></i> Agendamentos</Link>
+                            <Link className="nav-link active text-white" to='/appointments'><i className="bi bi-calendar3"></i> Agendamentos</Link>
                         </li>
                         <li className='nav-item user-select-none'>
-                            <Link className="nav-link active text-white" aria-current="page" to='/mecanicos'><i class="bi bi-people-fill"></i> Mecanicos</Link>
+                            <Link className="nav-link active text-white" aria-current="page" to='/mecanicos'><i className="bi bi-people-fill"></i> Mecanicos</Link>
+                        </li>
+                        <li className='nav-item user-select-none'>
+                            <Link className="nav-link active text-white" aria-current="page" to='/services'><i className="bi bi-gear"></i> Services</Link>
                         </li>
                     </ul>
                     <ul className='navbar-nav'>

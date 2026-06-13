@@ -32,6 +32,7 @@ export default function PageMecanicos() {
                 <div>
                     <h2 className="d-inline">Mecanicos</h2>
                     <Link
+                        to='/mecanicos/add'
                         className="btn btn-outline-primary ms-5 mb-2"
                     >Adicionar mecanico
                     </Link>
