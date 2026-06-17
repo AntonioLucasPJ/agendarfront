@@ -55,6 +55,15 @@ export const Rotas = () => {
                                     </RoutesProtect>
                                 }>
                                 </Route>
+<<<<<<< HEAD
+=======
+                                <Route path="/mecanicos/add/:id_mecanico" element={
+                                    <RoutesProtect>
+                                        <MecanicosAdd></MecanicosAdd>
+                                    </RoutesProtect>
+                                }>
+                                </Route>
+>>>>>>> e1b826c (update 3.6)
                                 <Route path="/services" element={
                                     <RoutesProtect>
                                         <Pageservice></Pageservice>

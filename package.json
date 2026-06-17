@@ -17,8 +17,11 @@
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.6.0",
+<<<<<<< HEAD
     "react-imask": "^7.6.1",
     "react-input-mask": "^2.0.4",
+=======
+>>>>>>> e1b826c (update 3.6)
     "react-router": "^7.13.0"
   },
   "devDependencies": {
