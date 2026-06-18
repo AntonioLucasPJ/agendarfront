@@ -21,12 +21,13 @@ export default function MecanicosAdd() {
     const location = useLocation()
     const navigate = useNavigate()
     const {id_mecanico} = useParams()
-    const { nmecanic, mcpf, memail, mgenero,mtelefone, mdescricao } = location.state || {}
-    
+    const { nmecanic, mcpf, memail, mgenero,mtelefone,mtituloprofissional, mexperiencia,mdescricao } = location.state || {}
+    console.log(mtituloprofissional)
     const [carregando, setcarregando] = useState(false)
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const { token } = useContext(UserContext)
     const {
+        iditmecanicoid,setiditmecanicoid,
         imagepreview,setimagepreview,
         arquivoImagem,setarquivoImagem,
         nome,setnome,
@@ -86,16 +87,17 @@ export default function MecanicosAdd() {
     }
     useEffect(() => {
         if (id_mecanico > 0) {
+            if(id_mecanico) setiditmecanicoid(id_mecanico)
             if (nmecanic) setnome(nmecanic);
             if (mcpf) setcpf(mcpf);
             if (memail) setemail(memail);
-            if (mgenero) setstatusservico(mgenero);
+            if (mgenero) setgeneroselecionado(mgenero);
             if (mtelefone) settelefone(mtelefone);
+            if (mexperiencia) setexperienciaselecionada(parseInt(mexperiencia));
+            if (mtituloprofissional) settituloprofissionalselecionado(parseInt(mtituloprofissional));
             if (mdescricao) setdescription(mdescricao)
-        }else {
-            CleanScreen()
         }
-    }, [id_mecanico, mcpf, memail,mgenero,mtelefone])
+    }, [id_mecanico, mcpf, memail,mgenero,mtelefone,mexperiencia,mtituloprofissional])
     useEffect(() => {
         setgenero([
             { id_genero: 1, label: 'Masculino', icon: '👨' },
@@ -294,12 +296,12 @@ export default function MecanicosAdd() {
                                         <div className="p-3 bg-light rounded-3 border border-light-subtle"
                                             style={{ maxHeight: '180px', overflowY: "auto", scrollbarWidth: 'thin' }}>
                                             {tituloprofissional.map(item => {
-                                                const isChecked = tituloprofissionalselecionado === item.label
+                                                const isChecked = tituloprofissionalselecionado === item.id_profissional
                                                 return (
                                                     <button
                                                         key={item.id_profissional}
                                                         type='button'
-                                                        onClick={() => settituloprofissionalselecionado(item.label)}
+                                                        onClick={() => settituloprofissionalselecionado(item.id_profissional)}
                                                         className="d-inline align-items-center gap-7 px-3 py-2 rounded-3 border fw-medium transition-all"
                                                         style={{
                                                             cursor: 'pointer',

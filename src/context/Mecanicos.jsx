@@ -1,11 +1,14 @@
 import { createContext, useContext, useState } from "react";
 import { UserContext } from "./UserLogin";
 import { api } from "../service/api";
+import { useParams, useRoutes } from "react-router";
 
 export const ContextMecanicos = createContext()
 export const MecanicosProvider = ({ children }) => {
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const [mecanicos, setmecanicos] = useState([])
+    //Edit
+    const [iditmecanicoid, setiditmecanicoid] = useState('')
     //Step 1
     const [imagepreview, setimagepreview] = useState(null)
     const [arquivoImagem, setarquivoImagem] = useState(null)
@@ -62,7 +65,7 @@ export const MecanicosProvider = ({ children }) => {
                     throw new Error('Falha ao obter URL do Cloudinary')
                 }
                 let servicostratados = JSON.stringify(servicoselecionado)
-                
+
                 const dadosapi = {
                     name: nome,
                     services: servicostratados,
@@ -92,16 +95,26 @@ export const MecanicosProvider = ({ children }) => {
 
     async function Edit() {
         setloading(true)
+        let urlfinalimage = imagepreview
+        const CLOUD_NAME = 'dniwjfgal'
+        const UPLOAD_PRESENT = 'agendarweb'
         try {
             await awaiting(2500)
             api.defaults.headers.Authorization = `Bearer ${token}`
-            const res = await api.put(`/servicessearch/${id_service}`, {
-                service: service,
-                description: description,
-                icone_id: icone,
-                status: statusservico
+            let servicostratados = JSON.stringify(servicoselecionado)
+            const res = await api.put(`/servicessearch/${iditmecanicoid}`, {
+                name: nome,
+                services: servicostratados,
+                genero: generoselecionado,
+                titulo_profissional: tituloprofissionalselecionado,
+                avatar_url: urlfinalimage,
+                mexperiencia: experienciaselecionada,
+                telefone: telefone,
+                email: email,
+                mdescricao: description,
+                cpf: cpf,
+                ativo: statusservico
             })
-            console.log(res.data)
             setmsgnotification(res.data.message)
             setactivenotification(true)
             setloading(false)
@@ -127,6 +140,6 @@ export const MecanicosProvider = ({ children }) => {
         setdescription('')
     }
     return (
-        <ContextMecanicos.Provider value={{arquivoImagem,setarquivoImagem,imagepreview,setimagepreview, mecanicos, nome, setnome, genero, setgenero, generoselecionado, setgeneroselecionado, cpf, setcpf, email, setemail, telefone, settelefone, serviceapi, setservicoselecionado, servicoselecionado, tituloprofissional, settituloprofissional, tituloprofissionalselecionado, settituloprofissionalselecionado, experiencia, setexperiencia, experienciaselecionada, setexperienciaselecionada, description, setdescription, statusservico, setstatusservico, activenotification, setactivenotification, msgnotification, setmsgnotification, loading, setloading, SearchMecanicos, setsteps, steps, CreateMecanico, Edit, LoadServices, ReturnHome, CleanScreen }}>{children}</ContextMecanicos.Provider>
+        <ContextMecanicos.Provider value={{ iditmecanicoid, setiditmecanicoid, arquivoImagem, setarquivoImagem, imagepreview, setimagepreview, mecanicos, nome, setnome, genero, setgenero, generoselecionado, setgeneroselecionado, cpf, setcpf, email, setemail, telefone, settelefone, serviceapi, setservicoselecionado, servicoselecionado, tituloprofissional, settituloprofissional, tituloprofissionalselecionado, settituloprofissionalselecionado, experiencia, setexperiencia, experienciaselecionada, setexperienciaselecionada, description, setdescription, statusservico, setstatusservico, activenotification, setactivenotification, msgnotification, setmsgnotification, loading, setloading, SearchMecanicos, setsteps, steps, CreateMecanico, Edit, LoadServices, ReturnHome, CleanScreen }}>{children}</ContextMecanicos.Provider>
     )
 }

@@ -176,7 +176,7 @@ function Appointments() {
                                     <th scope="col">Mecanico</th>
                                     <th scope="col">Serviço</th>
                                     <th scope="col">Data/Hora</th>
-                                    <th scope="col" className="text-end">Valor</th>
+                                    <th scope="col" className="text-end">Status</th>
                                     <th scope="col" className={styles.colbuttons}></th>
                                 </tr>
                             </thead>
@@ -192,7 +192,7 @@ function Appointments() {
                                                 mecanico={item.mecanico}
                                                 booking_date={item.booking_date}
                                                 booking_hour={item.booking_hour}
-                                                price={item.price}
+                                                status={item.status}
                                                 clickedit={Editar}
                                                 clickdelete={Delete}
                                             ></Appointment>

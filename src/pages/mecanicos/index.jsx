@@ -29,8 +29,7 @@ export default function PageMecanicos() {
         }
         carregardados()
     }, [])
-    function EditLoad(id_mecanico, name, genero, cpf, email,telefone,descricao, client) {
-        console.log(descricao)
+    function EditLoad(id_mecanico, name, genero, cpf, email,telefone,titulo_prossional,experiencia,descricao, client) {
         navigate('/mecanicos/add/' + id_mecanico, {
             state: {
                 nmecanic: name,
@@ -38,6 +37,8 @@ export default function PageMecanicos() {
                 mcpf: cpf,
                 memail: email,
                 mtelefone: telefone,
+                mtituloprofissional:titulo_prossional,
+                mexperiencia:experiencia,
                 mdescricao:descricao
             }
         })
@@ -110,8 +111,10 @@ export default function PageMecanicos() {
                                         telefone = {item.telefone}
                                         genero =  {item.genero}
                                         descricao = {item.descricao}
+                                        titulo_profissional = {item.titulo_profissional}
+                                        experiencia = {item.experiencia}
                                         clickdelete={(id) => DeletLoad(id)}
-                                        clickedit ={(id,name,genero,cpf,email,telefone,descricao)=> EditLoad(id,name,genero,cpf,email,telefone,descricao)}
+                                        clickedit ={(id,name,genero,cpf,email,telefone,titulo_prossional,experiencia,descricao)=> EditLoad(id,name,genero,cpf,email,telefone,titulo_prossional,experiencia,descricao)}
                                     >
                                     </Mecanicos>
                                 )
