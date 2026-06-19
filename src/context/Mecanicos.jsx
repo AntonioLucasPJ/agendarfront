@@ -1,10 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import { UserContext } from "./UserLogin";
 import { api } from "../service/api";
-import { useParams, useRoutes } from "react-router";
+import { replace, useNavigate, useParams, useRoutes } from "react-router";
 
 export const ContextMecanicos = createContext()
 export const MecanicosProvider = ({ children }) => {
+
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const [mecanicos, setmecanicos] = useState([])
     //Edit
@@ -102,7 +103,7 @@ export const MecanicosProvider = ({ children }) => {
             await awaiting(2500)
             api.defaults.headers.Authorization = `Bearer ${token}`
             let servicostratados = JSON.stringify(servicoselecionado)
-            const res = await api.put(`/servicessearch/${iditmecanicoid}`, {
+            const res = await api.put(`/mecanicos/${iditmecanicoid}`, {
                 name: nome,
                 services: servicostratados,
                 genero: generoselecionado,
@@ -129,7 +130,7 @@ export const MecanicosProvider = ({ children }) => {
     }
     function ReturnHome(e) {
         CleanScreen()
-        navigation.navigate('/mecanicos')
+        navigation.navigate('/mecanicos',replace=true)
     }
     function CleanScreen() {
         setnome('')

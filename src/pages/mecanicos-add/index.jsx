@@ -22,7 +22,6 @@ export default function MecanicosAdd() {
     const navigate = useNavigate()
     const {id_mecanico} = useParams()
     const { nmecanic, mcpf, memail, mgenero,mtelefone,mtituloprofissional, mexperiencia,mdescricao } = location.state || {}
-    console.log(mtituloprofissional)
     const [carregando, setcarregando] = useState(false)
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const { token } = useContext(UserContext)
@@ -448,7 +447,7 @@ export default function MecanicosAdd() {
                                         type="button"
                                         className='btn btn-primary px-4'
                                         disabled={!isStep2Valid}
-                                        onClick={id_mecanico > 0 ? Edit : () => CreateMecanico()}
+                                        onClick={id_mecanico > 0 ? ()=> Edit() : () => CreateMecanico()}
                                     >
                                         {id_mecanico>0?'Atualizar':'Cadastrar'}
                                     </button>
