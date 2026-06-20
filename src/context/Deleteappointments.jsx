@@ -7,6 +7,7 @@ export const ContextDeleteAppointments = createContext();
 export const ProviderDeleteAppointments = ({ children }) => {
     const [id_appointement, setidappointement] = useState('')
     const [alertmsg,setalertmsg] = useState(false)
+    const [msg,setmsg] = useState('')
     async function DeleteAppointments(id) {
         const token = localStorage.getItem("token")
         if (token) {
@@ -16,7 +17,7 @@ export const ProviderDeleteAppointments = ({ children }) => {
                 setalertmsg(true)
                 return response.data
             }catch(error){
-                return error
+                setalertmsg(true)
             }
         }
     }
@@ -25,6 +26,8 @@ export const ProviderDeleteAppointments = ({ children }) => {
             setidappointement,
             setalertmsg,
             alertmsg,
+            setmsg,
+            msg,
             DeleteAppointments }}>{children}</ContextDeleteAppointments.Provider>
     )
 }

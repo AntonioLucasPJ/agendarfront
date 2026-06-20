@@ -5,13 +5,12 @@ import { replace, useNavigate, useParams, useRoutes } from "react-router";
 
 export const ContextMecanicos = createContext()
 export const MecanicosProvider = ({ children }) => {
-
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const [mecanicos, setmecanicos] = useState([])
     //Edit
     const [iditmecanicoid, setiditmecanicoid] = useState('')
     //Step 1
-    const [imagepreview, setimagepreview] = useState(null)
+    const [imagepreview, setimagepreview] = useState('')
     const [arquivoImagem, setarquivoImagem] = useState(null)
     const [nome, setnome] = useState('')
     const [genero, setgenero] = useState([])
@@ -125,12 +124,8 @@ export const MecanicosProvider = ({ children }) => {
         }
     }
     async function LoadServices() {
-        const res = await api.get('/servicessearch')
+        const res = await api.get('/servicessearch?ativo=A')
         setserviceapi(res.data)
-    }
-    function ReturnHome(e) {
-        CleanScreen()
-        navigation.navigate('/mecanicos',replace=true)
     }
     function CleanScreen() {
         setnome('')
@@ -141,6 +136,6 @@ export const MecanicosProvider = ({ children }) => {
         setdescription('')
     }
     return (
-        <ContextMecanicos.Provider value={{ iditmecanicoid, setiditmecanicoid, arquivoImagem, setarquivoImagem, imagepreview, setimagepreview, mecanicos, nome, setnome, genero, setgenero, generoselecionado, setgeneroselecionado, cpf, setcpf, email, setemail, telefone, settelefone, serviceapi, setservicoselecionado, servicoselecionado, tituloprofissional, settituloprofissional, tituloprofissionalselecionado, settituloprofissionalselecionado, experiencia, setexperiencia, experienciaselecionada, setexperienciaselecionada, description, setdescription, statusservico, setstatusservico, activenotification, setactivenotification, msgnotification, setmsgnotification, loading, setloading, SearchMecanicos, setsteps, steps, CreateMecanico, Edit, LoadServices, ReturnHome, CleanScreen }}>{children}</ContextMecanicos.Provider>
+        <ContextMecanicos.Provider value={{ iditmecanicoid, setiditmecanicoid, arquivoImagem, setarquivoImagem, imagepreview, setimagepreview, mecanicos, nome, setnome, genero, setgenero, generoselecionado, setgeneroselecionado, cpf, setcpf, email, setemail, telefone, settelefone, serviceapi, setservicoselecionado, servicoselecionado, tituloprofissional, settituloprofissional, tituloprofissionalselecionado, settituloprofissionalselecionado, experiencia, setexperiencia, experienciaselecionada, setexperienciaselecionada, description, setdescription, statusservico, setstatusservico, activenotification, setactivenotification, msgnotification, setmsgnotification, loading, setloading, SearchMecanicos, setsteps, steps, CreateMecanico, Edit, LoadServices, CleanScreen }}>{children}</ContextMecanicos.Provider>
     )
 }

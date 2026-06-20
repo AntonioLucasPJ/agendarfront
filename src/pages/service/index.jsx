@@ -9,10 +9,13 @@ import { Link, useNavigate } from "react-router"
 import { SearchService } from "../components/SearchService/index.jsx"
 import { setDate } from "date-fns"
 import { ModalDelete } from "../components/Modal/index.jsx"
+import { AlertMessage } from "../components/Alert/index.jsx"
 
 export function Pageservice() {
     const [services, setservices] = useState([])
     const [loading, setloading] = useState(false)
+    const [alert,setalert] = useState(false)
+    const [msgalert,setmsgalert] = useState('')
     const [alertdelete, setalertdelete] = useState(false)
     const [iddelete, setiddelete] = useState('')
     const [error, seterror] = useState(false)
@@ -58,7 +61,12 @@ export function Pageservice() {
             window.location.reload()
             console.log(res.data)
         } catch (error) {
-            console.log(error)
+            setalert(true)
+            setmsgalert(error.response.data.message)
+            console.log(error.response.data.message)
+            setTimeout(()=>{
+                setalert(!alert)
+            },1000)
             setalertdelete(false)
             setloading(false)
         }
@@ -81,6 +89,9 @@ export function Pageservice() {
                 ></ModalDelete>
             )}
             <Navbar></Navbar>
+            {alert &&(
+                <AlertMessage msg={msgalert}></AlertMessage>
+            )}
             {!loading && error && (
                 <div className="container-fluid d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '75vh' }}>
                     <span style={{ fontSize: '24px' }}>⚠️</span>

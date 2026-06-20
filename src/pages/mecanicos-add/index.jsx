@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { LoadingScreen } from "../components/loading"
 import { Navbar } from "../components/navbar"
-import { Link, useLocation, useNavigate, useParams, useRoutes } from "react-router";
+import { Link, replace, useLocation, useNavigate, useParams, useRoutes } from "react-router";
 import { Modal } from "../components/Modal";
 
 import {
@@ -20,39 +20,38 @@ import { ContextMecanicos } from "../../context/Mecanicos";
 export default function MecanicosAdd() {
     const location = useLocation()
     const navigate = useNavigate()
-    const {id_mecanico} = useParams()
-    const { nmecanic, mcpf, memail, mgenero,mtelefone,mtituloprofissional, mexperiencia,mdescricao } = location.state || {}
+    const { id_mecanico } = useParams()
+    const { nmecanic, mcpf, memail, mgenero, mtelefone, mtituloprofissional, mexperiencia, mdescricao } = location.state || {}
     const [carregando, setcarregando] = useState(false)
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const { token } = useContext(UserContext)
     const {
-        iditmecanicoid,setiditmecanicoid,
-        imagepreview,setimagepreview,
-        arquivoImagem,setarquivoImagem,
-        nome,setnome,
-        cpf,setcpf,
-        genero,setgenero,
-        generoselecionado,setgeneroselecionado,
-        email,setemail,
-        telefone,settelefone,
+        iditmecanicoid, setiditmecanicoid,
+        imagepreview, setimagepreview,
+        arquivoImagem, setarquivoImagem,
+        nome, setnome,
+        cpf, setcpf,
+        genero, setgenero,
+        generoselecionado, setgeneroselecionado,
+        email, setemail,
+        telefone, settelefone,
         serviceapi,
-        servicoselecionado,setservicoselecionado,
-        tituloprofissional,settituloprofissional,
-        tituloprofissionalselecionado,settituloprofissionalselecionado,
-        experiencia,setexperiencia,
-        experienciaselecionada,setexperienciaselecionada,
-        description,setdescription,
-        statusservico,setstatusservico,
-        activenotification,setactivenotification,
-        msgnotification,setmsgnotification,
-        steps,setsteps,
-        SearchMecanicos, 
+        servicoselecionado, setservicoselecionado,
+        tituloprofissional, settituloprofissional,
+        tituloprofissionalselecionado, settituloprofissionalselecionado,
+        experiencia, setexperiencia,
+        experienciaselecionada, setexperienciaselecionada,
+        description, setdescription,
+        statusservico, setstatusservico,
+        activenotification, setactivenotification,
+        msgnotification, setmsgnotification,
+        steps, setsteps,
+        SearchMecanicos,
         CreateMecanico,
         LoadServices,
         Edit,
-        ReturnHome,
         CleanScreen,
-        loading,setloading} = useContext(ContextMecanicos)
+        loading, setloading } = useContext(ContextMecanicos)
     const LISTA_ICONES = [
         { id: 'engine-outline', iconeWeb: <MdBuild size={30} />, label: 'Injeção' },
         { id: 'car-break-abs', iconeWeb: <MdDirectionsCar size={30} />, label: 'Freios' },
@@ -86,7 +85,7 @@ export default function MecanicosAdd() {
     }
     useEffect(() => {
         if (id_mecanico > 0) {
-            if(id_mecanico) setiditmecanicoid(id_mecanico)
+            if (id_mecanico) setiditmecanicoid(id_mecanico)
             if (nmecanic) setnome(nmecanic);
             if (mcpf) setcpf(mcpf);
             if (memail) setemail(memail);
@@ -96,7 +95,7 @@ export default function MecanicosAdd() {
             if (mtituloprofissional) settituloprofissionalselecionado(parseInt(mtituloprofissional));
             if (mdescricao) setdescription(mdescricao)
         }
-    }, [id_mecanico, mcpf, memail,mgenero,mtelefone,mexperiencia,mtituloprofissional])
+    }, [id_mecanico, mcpf, memail, mgenero, mtelefone, mexperiencia, mtituloprofissional])
     useEffect(() => {
         setgenero([
             { id_genero: 1, label: 'Masculino', icon: '👨' },
@@ -124,13 +123,40 @@ export default function MecanicosAdd() {
         }
         setnome(formatado)
     }
+    const formatCPF = (value) => {
+        return value
+            .replace(/\D/g, '')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+            .substring(0, 14);
+    }
+    const Formattelefone = (value) => {
+        return value
+            .replace(/\D/g, '')
+            .replace(/^(\d{2})(\d)/g, "($1) $2")
+            .replace(/(\d{5})(\d)/, '$1-$2')
+            .substring(0, 15)
+    }
+    const HandleCPFChange = (e) => {
+        const valorformatado = formatCPF(e.target.value)
+        setcpf(valorformatado)
+    }
+    const HandleTelefoneChange = (e) => {
+        const valorformatado = Formattelefone(e.target.value)
+        settelefone(valorformatado)
+    }
     const validaremail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email)
 
     }
-    const isStep1Valid = nome.length >= 8 && generoselecionado !== '' && cpf.length >= 11 && telefone.length > 8 && email.includes('@');
-    const isStep2Valid = servicoselecionado.length > 0 && tituloprofissionalselecionado != '' && experienciaselecionada != '' && description !='';
+    async function Home() {
+        setactivenotification(false)
+        navigate('/mecanicos', {replace :true})
+    }
+    const isStep1Valid = imagepreview != '' && nome.length >= 8 && generoselecionado !== '' && cpf.length >= 14 && telefone.length >= 15 && email.includes('@');
+    const isStep2Valid = servicoselecionado.length > 0 && tituloprofissionalselecionado != '' && experienciaselecionada != '' && description != '';
     const isFormInvalid = true// nome.length >= 8  && cpf.length >0 && experienciaselecionada.length >0 && telefone.length >8
     return (
         <>
@@ -176,6 +202,7 @@ export default function MecanicosAdd() {
                                             <input
                                                 type="file"
                                                 accept="image/*"
+                                                required={true}
                                                 onChange={handleAlterarImage}
                                                 className="position-absolute top-0 start-0 opacity-0 w-100 h-100"
                                                 style={{ cursor: 'pointer' }}></input>
@@ -222,7 +249,7 @@ export default function MecanicosAdd() {
                                             className="form-control px-3 py-2 rounded-3"
                                             placeholder="121.454.342-92"
                                             value={cpf}
-                                            onChange={(e) => setcpf(e.target.value)}
+                                            onChange={(e) => HandleCPFChange(e)}
                                         ></input>
                                     </div>
                                     <div className="mb-3">
@@ -245,7 +272,7 @@ export default function MecanicosAdd() {
                                             className="form-control px-3 py-2 rounded-3"
                                             placeholder="(98) 998721-2813"
                                             value={telefone}
-                                            onChange={(e) => settelefone(e.target.value)}
+                                            onChange={(e) => HandleTelefoneChange(e)}
                                         ></input>
                                     </div>
                                 </div>
@@ -447,9 +474,9 @@ export default function MecanicosAdd() {
                                         type="button"
                                         className='btn btn-primary px-4'
                                         disabled={!isStep2Valid}
-                                        onClick={id_mecanico > 0 ? ()=> Edit() : () => CreateMecanico()}
+                                        onClick={id_mecanico > 0 ? () => Edit() : () => CreateMecanico()}
                                     >
-                                        {id_mecanico>0?'Atualizar':'Cadastrar'}
+                                        {id_mecanico > 0 ? 'Atualizar' : 'Cadastrar'}
                                     </button>
                                 )
                             }

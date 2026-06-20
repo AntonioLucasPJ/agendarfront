@@ -54,7 +54,6 @@ export default function AppointmentAdd() {
 
     }
     function ReturnHome() {
-        CleanScreen()
         setactivenotification(false)
         navigate('/appointments', { replace: true })
     }
@@ -348,7 +347,7 @@ export default function AppointmentAdd() {
                                                         >
                                                             <div className="text-start">
                                                                 <strong className="d-block text-dark">{item.name}</strong>
-                                                                <small className="text-muted">{item.titulo_profissional}</small>
+                                                                <small className="text-muted">{item.email}</small>
                                                             </div>
                                                             <button type="button" className="btn btn-primary btn-sm rounded-ill px-3">Selecionar</button>
                                                         </li>
