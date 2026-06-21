@@ -1,5 +1,5 @@
 import { Image, Text, TouchableOpacity, View } from "react";
-import { styles } from './index.js'
+
 import {
     FaCalendarCheck,
     FaCarCrash,

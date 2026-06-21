@@ -17,7 +17,7 @@ function Appointments() {
     //Loading Limited Page
     const [post, setpost] = useState([])
     const [appointmentsbd, setappointmentsbd] = useState([])
-    const [CurrentPage, setCurrentPage] = useState(2)
+    const [CurrentPage, setCurrentPage] = useState(1)
     const [postPerPage, setPostPerPage] = useState(8)
     const [loading, setloading] = useState(true)
     /// Change Page
