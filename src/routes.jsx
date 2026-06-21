@@ -13,6 +13,8 @@ import { Pageservice } from "./pages/service/index.jsx";
 import { MecanicosProvider } from "./context/Mecanicos.jsx";
 import ServiceAdd from "./pages/service-add/index.jsx";
 import MecanicosAdd from "./pages/mecanicos-add/index.jsx";
+import PageVehicle from "./pages/vehicle/index.jsx";
+import VehicleAdd from "./pages/vehicle-add/index.jsx";
 
 export const Rotas = () => {
     return (
@@ -76,6 +78,18 @@ export const Rotas = () => {
                                 <Route path="/services/add/:id_service" element={
                                     <RoutesProtect>
                                         <ServiceAdd></ServiceAdd>
+                                    </RoutesProtect>
+                                }>
+                                </Route>
+                                <Route path="/vehicles" element={
+                                    <RoutesProtect>
+                                        <PageVehicle></PageVehicle>
+                                    </RoutesProtect>
+                                }>
+                                </Route>
+                                <Route path="/vehicles/add" element={
+                                    <RoutesProtect>
+                                        <VehicleAdd></VehicleAdd>
                                     </RoutesProtect>
                                 }>
                                 </Route>
