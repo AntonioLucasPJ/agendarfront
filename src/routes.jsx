@@ -93,6 +93,12 @@ export const Rotas = () => {
                                     </RoutesProtect>
                                 }>
                                 </Route>
+                                <Route path="/vehicles/add/:id_vehicle" element={
+                                    <RoutesProtect>
+                                        <VehicleAdd></VehicleAdd>
+                                    </RoutesProtect>
+                                }>
+                                </Route>
                             </Routes>
                         </BrowserRouter>
                     </NewAppProvider>

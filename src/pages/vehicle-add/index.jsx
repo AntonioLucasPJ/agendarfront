@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { use, useContext, useEffect, useState } from "react"
 import { LoadingScreen } from "../components/loading"
 import { Navbar } from "../components/navbar"
 import { Link, replace, useLocation, useNavigate, useParams, useRoutes } from "react-router";
@@ -14,59 +14,42 @@ import {
     MdSettings
 } from 'react-icons/md'
 import { api } from "../../service/api";
-import { ar, ca } from "date-fns/locale";
+import { ar, ca, da } from "date-fns/locale";
 import { UserContext } from "../../context/UserLogin";
 import { ContextMecanicos } from "../../context/Mecanicos";
+import { AlertMessage } from "../components/Alert";
 export default function VehicleAdd() {
+    const [loading, setloading] = useState(false)
+    const [msgnotification, setmsgnotification] = useState('')
+    const [activenotification, setactivenotification] = useState(false)
+    const [alert, setalert] = useState(false)
+    const [msgalert, setmsgalert] = useState('')
     const [icone, seticone] = useState([])
+    const [imagepreview, setimagepreview] = useState('')
+    const [arquivoImagem, setarquivoImagem] = useState(null)
     const [listbrand, setlistbrand] = useState([])
-    const [brand,setbrand] = useState('')
-    const [brandselecionado,setbrandselecionado] = useState([])
-    const [model,setmodel] = useState('')
+    const [brand, setbrand] = useState('')
+    const [brandselecionado, setbrandselecionado] = useState([])
+    const [model, setmodel] = useState('')
     const [ano, setano] = useState('')
+
+    const [statusservico, setstatusservico] = useState('')
+    const [btdisable, setbtdisable] = useState('')
     const location = useLocation()
     const navigate = useNavigate()
-    const { id_mecanico } = useParams()
+    const { id_vehicle } = useParams()
+    const { editbrand, editmodel, edityear, editstatus } = location.state || ''
     const { nmecanic, mcpf, memail, mgenero, mtelefone, mtituloprofissional, mexperiencia, mdescricao } = location.state || {}
     const [carregando, setcarregando] = useState(false)
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const { token } = useContext(UserContext)
-    const {
-        iditmecanicoid, setiditmecanicoid,
-        imagepreview, setimagepreview,
-        arquivoImagem, setarquivoImagem,
-        nome, setnome,
-        cpf, setcpf,
-        genero, setgenero,
-        generoselecionado, setgeneroselecionado,
-        email, setemail,
-        telefone, settelefone,
-        serviceapi,
-        servicoselecionado, setservicoselecionado,
-        tituloprofissional, settituloprofissional,
-        tituloprofissionalselecionado, settituloprofissionalselecionado,
-        experiencia, setexperiencia,
-        experienciaselecionada, setexperienciaselecionada,
-        description, setdescription,
-        statusservico, setstatusservico,
-        activenotification, setactivenotification,
-        msgnotification, setmsgnotification,
-        steps, setsteps,
-        SearchMecanicos,
-        CreateMecanico,
-        LoadServices,
-        Edit,
-        CleanScreen,
-        loading, setloading } = useContext(ContextMecanicos)
     useEffect(() => {
         async function LoadBrands() {
             const res = await api.get('/vehicle/brands')
-            console.log(res.data)
             setlistbrand(res.data)
         }
         LoadBrands()
     }, [])
-    const nameIsvalid = nome.length > 8
     const handleAlterarImage = (e) => {
         const arquivo = e.target.files[0];
         if (arquivo) {
@@ -75,23 +58,81 @@ export default function VehicleAdd() {
         }
     }
     useEffect(() => {
-        if (id_mecanico > 0) {
-            if (id_mecanico) setiditmecanicoid(id_mecanico)
-            if (nmecanic) setnome(nmecanic);
-            if (mcpf) setcpf(mcpf);
-            if (memail) setemail(memail);
-            if (mgenero) setgeneroselecionado(mgenero);
-            if (mtelefone) settelefone(mtelefone);
-            if (mexperiencia) setexperienciaselecionada(parseInt(mexperiencia));
-            if (mtituloprofissional) settituloprofissionalselecionado(parseInt(mtituloprofissional));
-            if (mdescricao) setdescription(mdescricao)
+        if (id_vehicle > 0) {
+
+            if (editbrand) setbrand(editbrand)
+            if (editmodel) setmodel(String(editmodel));
+            if (edityear) setano(String(edityear));
+            if (editstatus) setstatusservico(editstatus)
+
         }
-    }, [id_mecanico, mcpf, memail, mgenero, mtelefone, mexperiencia, mtituloprofissional])
-    async function CreateVehicle(){
-        const res = await api.post('vehicle/singupvehicle')
+    }, [id_vehicle, editbrand, editmodel, edityear])
+    async function CreateVehicle() {
+        let urlfinalimage = imagepreview
+        const CLOUD_NAME = 'dniwjfgal'
+        const UPLOAD_PRESENT = 'agendarweb'
+        setloading(true)
+        try {
+            if (arquivoImagem) {
+                const formData = new FormData();
+                formData.append('file', arquivoImagem);
+                formData.append('upload_preset', UPLOAD_PRESENT);
+                const respostaCloudinary = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                    { method: 'POST', body: formData }
+                )
+                const dadosimagem = await respostaCloudinary.json();
+                if (dadosimagem.secure_url) {
+                    urlfinalimage = dadosimagem.secure_url;
+                } else {
+                    throw new Error('Falha ao obter URL do Cloudinary')
+                }
+                const dadosapi = {
+                    brand: brand,
+                    model: model,
+                    image: urlfinalimage,
+                    ano: ano
+                }
+                await awaiting(2500)
+                api.defaults.headers.Authorization = `Bearer ${token}`
+                const res = await api.post('/vehicle/modelvehicle', dadosapi)
+                setmsgnotification(res.data.message)
+                setactivenotification(true)
+                setloading(false)
+            }
+        } catch (error) {
+            setloading(false)
+            setmsgalert(error.response?.data?.error || error.message || 'Error desconhecido')
+            setalert(true)
+        }
+
     }
+    async function EditVehicle() {
+        setloading(true)
+        try {
+            const dadosapi = {
+                model: model,
+                year: ano,
+                status: statusservico
+            }
+            console.log(dadosapi)
+            await awaiting(2500)
+            api.defaults.headers.Authorization = `Bearer ${token}`
+            const res = await api.put(`/vehicle/${id_vehicle}`, dadosapi)
+            setmsgnotification(res.data.message)
+            setactivenotification(true)
+            setloading(false)
+        } catch (error) {
+            setloading(false)
+            setalert(true)
+            setmsgalert(error.response.data.error)
+
+        }
+    }
+
     const FormatAno = (value) => {
-        return value
+        const string = String(value || '')
+        return string
             .replace(/\D/g, '')
             .substring(0, 4)
     }
@@ -108,8 +149,13 @@ export default function VehicleAdd() {
         setactivenotification(false)
         navigate('/mecanicos', { replace: true })
     }
-    const isValid = imagepreview != '' && model.length >= 8 && ano.length >=4;
-    const isFormInvalid = isValid// nome.length >= 8  && cpf.length >0 && experienciaselecionada.length >0 && telefone.length >8
+    async function ReturnHome() {
+        navigate('/vehicles')
+    }
+    function CleanScreen() {
+        setactivenotification(false)
+        ReturnHome()
+    }
     return (
         <>
             <Navbar></Navbar>
@@ -117,11 +163,15 @@ export default function VehicleAdd() {
                 {loading && (
                     <LoadingScreen></LoadingScreen>
                 )}
+
                 <div className="row justify-content-center">
+                    {alert && (
+                        <AlertMessage msg={msgalert}></AlertMessage>
+                    )}
                     <div className="col-10 col-md-10 col-lg-5 bg-white p-4 rounded-4 shadow-sm border">
                         <div className="text-center mb-3">
                             <h2 className="text-primary user-select-none fw-bold">
-                                {id_mecanico > 0 ? 'Editar dados' : 'Adicionar Veiculo'}</h2>
+                                {id_vehicle > 0 ? 'Editar dados' : 'Adicionar Veiculo'}</h2>
                         </div>
                         <form>
                             {
@@ -133,87 +183,91 @@ export default function VehicleAdd() {
                                         returnhome={(e) => ReturnHome(e)}></Modal>
                                     : ''
                             }
-                                <div className="animated__animated animate__fadeIn">
-                                    <div className="d-flex flex-column align-items-center mb-4" >
-                                        <div
-                                            className="overflow-hidden bg-light border rounded-circle mb-2 d-flex align-items-center justify-content-center"
-                                            style={{ width: `100px`, height: '100px' }}
-                                        >
-                                            {imagepreview ? (
-                                                <img src={imagepreview} alt="Preview" className="w-100 h-100 object-fit-cover"></img>
-                                            ) : (
-                                                <span className="text-secondary small">Sem foto</span>
-                                            )}
-                                        </div>
-                                        <label className="btn btn-outline-primary btn-sm position-relative">
-                                            Selecionar Foto
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                required={true}
-                                                onChange={handleAlterarImage}
-                                                className="position-absolute top-0 start-0 opacity-0 w-100 h-100"
-                                                style={{ cursor: 'pointer' }}></input>
-                                        </label>
+                            <div className="animated__animated animate__fadeIn">
+                                <div className="d-flex flex-column align-items-center mb-4" >
+                                    <div
+                                        className="overflow-hidden bg-light border rounded-circle mb-2 d-flex align-items-center justify-content-center"
+                                        style={{ width: `100px`, height: '100px' }}
+                                    >
+                                        {imagepreview ? (
+                                            <img src={imagepreview} alt="Preview" className="w-100 h-100 object-fit-cover"></img>
+                                        ) : (
+                                            <span className="text-secondary small">Sem foto</span>
+                                        )}
                                     </div>
-                                    <div className="mb-4">
-                                        <label htmlFor="icone" className="form-label fw semibold">Marca/Fabricante</label>
-                                        <div
-                                            className="d-flex overflow-x-auto pb-2 gap-3"
-                                            style={{ scrollbarWidth: 'thin' }}
-                                        >
-                                            {listbrand.map((item) => {
-                                                const isSelected = brand === item.id
-                                                
-                                                return (
-                                                    <button
-                                                        key={item.id}
-                                                        type="button"
-                                                        disabled={imagepreview.trim() ==''? true : false}
-                                                        onClick={() => setbrand(item.id)}
-                                                        className={`d-flex flex-column align-items-center justify-content-center p3 rounded-3 border transition-all`}
-                                                        style={{
-                                                            minWidth: '90px',
-                                                            height: '90px',
-                                                            cursor: 'pointer',
-                                                            backgroundColor: isSelected ? '#EBF8FF' : '#F8FAFC',
-                                                            borderColor: isSelected ? '#002f6C' : '#E2E8F0',
-                                                            color: isSelected ? '#002f6c' : '#64748b',
-                                                            boxShadow: isSelected ? '0 0 0 2px #002F6C' : 'none',
-                                                            transition: "all 0.2s ease"
-                                                        }}
-                                                    >
-                                                        <img style={{ width: `50px` }} src={item.imagem_url}></img>
-                                                        <span style={{ fontSize: '11px', fontWeight: '600', gap: '20px' }}>{item.name}</span>
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
+                                    <label className="btn btn-outline-primary btn-sm position-relative">
+                                        Selecionar Foto
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleAlterarImage}
+                                            className="position-absolute top-0 start-0 opacity-0 w-100 h-100"
+                                            style={{ cursor: 'pointer' }}></input>
+                                    </label>
+                                </div>
+                                <div className="mb-4">
+                                    <label htmlFor="icone" className="form-label fw semibold">Marca/Fabricante</label>
+                                    <div
+                                        className="d-flex overflow-x-auto pb-2 gap-3"
+                                        style={{ scrollbarWidth: 'thin' }}
+                                    >
+                                        {listbrand.map((item) => {
+                                            const isSelected = brand === item.id
 
-                                    <div className="mb-3">
-                                        <label className="form-label fw-semibold text-secondary small text-uppercase">MODELO </label>
-                                        <input
-                                            type="text"
-                                            className="form-control px-3 py-2 rounded-3"
-                                            placeholder="Onix 1.0 Plus Turbo..."
-                                            value={model}
-                                            onChange={(e) => setmodel(e.target.value)}
-                                        ></input>
-                                    </div>
-                                    <div className="mb-3">
-                                        <label className="form-label fw-semibold text-secondary small text-uppercase">ANO</label>
-                                        <input
-                                            type="text"
-                                            className="form-control px-3 py-2 rounded-3"
-                                            placeholder="2022"
-                                            value={ano}
-                                            onChange={(e) => HandleAno(e)}
-                                        ></input>
+                                            return (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    disabled={id_vehicle > 0 ? true : false}
+                                                    onClick={() => setbrand(item.id)}
+                                                    className={`d-flex flex-column align-items-center justify-content-center p3 rounded-3 border transition-all`}
+                                                    style={{
+                                                        minWidth: '90px',
+                                                        height: '90px',
+                                                        cursor: 'pointer',
+                                                        backgroundColor: isSelected ? '#EBF8FF' : '#F8FAFC',
+                                                        borderColor: isSelected ? '#002f6C' : '#E2E8F0',
+                                                        color: isSelected ? '#002f6c' : '#64748b',
+                                                        boxShadow: isSelected ? '0 0 0 2px #002F6C' : 'none',
+                                                        transition: "all 0.2s ease"
+                                                    }}
+                                                >
+                                                    <img style={{ width: `50px` }} src={item.imagem_url}></img>
+                                                    <span style={{ fontSize: '11px', fontWeight: '600', gap: '20px' }}>{item.name}</span>
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                 </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label fw-semibold text-secondary small text-uppercase">MODELO </label>
+                                    <input
+                                        type="text"
+                                        className="form-control px-3 py-2 rounded-3"
+                                        placeholder="Onix 1.0 Plus Turbo..."
+                                        value={model}
+                                        onChange={(e) => setmodel(e.target.value)}
+                                    ></input>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label fw-semibold text-secondary small text-uppercase">ANO</label>
+                                    <input
+                                        type="text"
+                                        className="form-control px-3 py-2 rounded-3"
+                                        placeholder="2022"
+                                        value={ano}
+                                        onChange={(e) => {
+                                            const anoformatados = FormatAno(e.target.value)
+                                            setano(anoformatados)
+                                            const isValid = String(model).trim().length >= 8 && anoformatados.length === 4
+                                            setbtdisable(!isValid)
+                                        }}
+                                    ></input>
+                                </div>
+                            </div>
                         </form>
-                        {id_mecanico > 0 && (
+                        {id_vehicle > 0 && (
                             <div className="mb-4">
                                 <label className="form-label fw-semibold text-secondary small text-uppercase">Status de Visibilidade</label>
                                 <div className="d-flex gap-3">
@@ -258,10 +312,10 @@ export default function VehicleAdd() {
                             <button
                                 type="button"
                                 className='btn btn-primary px-4'
-                                disabled={!isValid}
-                                onClick={id_mecanico > 0 ? () => Edit() : () => CreateVehicle()}
+                                disabled={btdisable}
+                                onClick={id_vehicle > 0 ? () => EditVehicle() : () => CreateVehicle()}
                             >
-                                {id_mecanico > 0 ? 'Atualizar' : 'Cadastrar'}
+                                {id_vehicle > 0 ? 'Atualizar' : 'Cadastrar'}
                             </button>
                         </div>
                     </div>

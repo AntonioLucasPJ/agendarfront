@@ -1,13 +1,16 @@
-.alertcontainer {
-    width: fit-content;
-    max-width: 90%;
-    position: absolute;
-    left: 50%;
-    top: 20px;
-    transform: translateX(-50%);
-    z-index: 9999;
-}
 
+.alertaflutuante {
+  position: fixed;   /* ➔ Faz o elemento ignorar o scroll e fixar na tela */
+  top: 20px;         /* Distância do topo da janela do navegador */
+  left: 50%;         /* Move o alerta para a metade da largura */
+  transform: translateX(-50%); /* ➔ Mágica para centralizar perfeitamente na horizontal */
+  z-index: 9999;     /* ➔ Garante que ele fique por CIMA de qualquer outro elemento, input ou menu */
+  
+  /* Seus estilos visuais adicionais (opcional se já usar Bootstrap) */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); 
+  max-width: 90%;
+  width: 400px;
+}
 .textaviso {
     display: flex;
     align-items: center;
