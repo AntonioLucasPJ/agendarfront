@@ -301,7 +301,7 @@ export default function AppointmentAdd() {
                                             <h6 className="mb-0 text-primary fw-bold">
                                                 👤 {mecanicoselecionado.name}
                                             </h6>
-                                            <small className="text-muted">{mecanicoselecionado.titulo_profissional}</small>
+                                            <small className="text-muted">{mecanicoselecionado.email}</small>
                                         </div>
                                         <button
                                             type="button"

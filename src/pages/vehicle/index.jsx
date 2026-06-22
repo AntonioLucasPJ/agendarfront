@@ -5,25 +5,38 @@ import { useEffect, useState } from "react";
 import { api } from "../../service/api";
 import { ModalDelete } from "../components/Modal";
 import { LoadingScreen } from "../components/loading";
+import { Pagination } from "../components/Pagination";
 
 export default function PageVehicle() {
+    //control page
+    const [post, setpost] = useState([])
+    const [CurrentPage, setCurrentPage] = useState(1)
+    const [postPerPage, setPostPerPage] = useState(10)
+    const paginate = (Number) => setCurrentPage(Number)
     const [loading, setloading] = useState(false)
     const [alertdelete, setalertdelete] = useState(false)
     const [iddelete, setiddelete] = useState('')
     const [vehicle, setvehicle] = useState([])
     const navigate = useNavigate()
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
     useEffect(() => {
         setloading(true)
         async function LoadData() {
             await awaiting(1500)
             const res = await api.get('/vehiclesall')
             setloading(false)
-            setvehicle(res.data)
+            setpost(res.data)
+            let indexoflastpost = CurrentPage * postPerPage
+            let indexoffirtpost = indexoflastpost - postPerPage
+            if(indexoffirtpost >= res.data.length){
+                indexoffirtpost =0;
+                indexoflastpost = postPerPage;
+            }
+            const currentPost = res.data.slice(indexoffirtpost, indexoflastpost)
+            setvehicle(currentPost)
         }
         LoadData()
-    }, [])
+    }, [CurrentPage])
     async function DeletLoad(id) {
         setalertdelete(true)
         setiddelete(id)
@@ -48,13 +61,13 @@ export default function PageVehicle() {
             setloading(false)
         }
     }
-    async function EditLoad(id_vehicle,brand,brandid,model,year,status){
-        navigate('/vehicles/add/'+ id_vehicle, {
-            state:{
-                editbrand:brandid,
-                editmodel:model,
-                edityear:year,
-                editstatus:status
+    async function EditLoad(id_vehicle, brand, brandid, model, year, status) {
+        navigate('/vehicles/add/' + id_vehicle, {
+            state: {
+                editbrand: brandid,
+                editmodel: model,
+                edityear: year,
+                editstatus: status
             }
         })
     }
@@ -109,7 +122,7 @@ export default function PageVehicle() {
                                         year={item.year}
                                         status={item.status}
                                         clickdelete={(id) => DeletLoad(id)}
-                                        clickedit={(id,brand,brandid,model,year,status) => EditLoad(id, brand,brandid,model,year,status)}
+                                        clickedit={(id, brand, brandid, model, year, status) => EditLoad(id, brand, brandid, model, year, status)}
                                     >
                                     </Vehicles>
                                 )
@@ -117,6 +130,8 @@ export default function PageVehicle() {
                         </tbody>
                     )}
                 </table>
+                <Pagination postPerPage={postPerPage} totalPost={post.length} paginate={paginate}></Pagination>
+
             </div>
         </div>
     )

@@ -44,6 +44,9 @@ export function Navbar() {
                         <li className='nav-item user-select-none'>
                             <Link className="nav-link active text-white" aria-current="page" to='/vehicles'><i className="bi bi-car-front"></i> Vehicles</Link>
                         </li>
+                        <li className='nav-item user-select-none'>
+                            <Link className="nav-link active text-white" aria-current="page" to='/clients'><i className="bi bi-car-front"></i> Clientes</Link>
+                        </li>
                     </ul>
                     <ul className='navbar-nav'>
                         <li className='nav-item'>

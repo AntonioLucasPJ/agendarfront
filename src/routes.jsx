@@ -15,6 +15,7 @@ import ServiceAdd from "./pages/service-add/index.jsx";
 import MecanicosAdd from "./pages/mecanicos-add/index.jsx";
 import PageVehicle from "./pages/vehicle/index.jsx";
 import VehicleAdd from "./pages/vehicle-add/index.jsx";
+import ClientPage from "./pages/clients/index.jsx";
 
 export const Rotas = () => {
     return (
@@ -96,6 +97,12 @@ export const Rotas = () => {
                                 <Route path="/vehicles/add/:id_vehicle" element={
                                     <RoutesProtect>
                                         <VehicleAdd></VehicleAdd>
+                                    </RoutesProtect>
+                                }>
+                                </Route>
+                                <Route path="/clients/" element={
+                                    <RoutesProtect>
+                                        <ClientPage></ClientPage>
                                     </RoutesProtect>
                                 }>
                                 </Route>

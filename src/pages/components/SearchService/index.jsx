@@ -30,8 +30,8 @@ const MapeamentoIcones = ({ nomeicon }) => {
 export function SearchService(props) {
     return (
         <tr style={{ transition: 'all 0.2s' }}>
-            <td scope="row" className="ps-4 text-secondary small fw-medium" style={{ width: '5%' }}>{props.id_service}</td>
-            <td className="text-center" style={{ width: '80px' }}>
+            <td scope="row" className="aling-middle ps-4 text-secondary small fw-medium" style={{ width: '5%' }}>{props.id_service}</td>
+            <td className=" aling-middle " style={{ width: '80px' }}>
                 <div className="d-inline-flex p-2 bg-light rounded-3">
                     <MapeamentoIcones nomeicon={props.icone_id}></MapeamentoIcones>
                 </div>
@@ -42,7 +42,7 @@ export function SearchService(props) {
                     {props.description}
                 </div>
             </td>
-            <td className="text-center" style={{ width: '150px' }}>
+            <td className="aling-middle" style={{ width: '10px' }}>
                 {props.status === 'A' ? (
                     <span className="badge bg-sucess-subtle text-success px-2.5 py-1.5 rounded-pill fw-semibold border-sucess-subtile" style={{fontSize:'12px'}}>
                         <FcOk size={18} className="me-1"></FcOk>Ativo
