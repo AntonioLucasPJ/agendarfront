@@ -45,7 +45,7 @@ export function Navbar() {
                             <Link className="nav-link active text-white" aria-current="page" to='/vehicles'><i className="bi bi-car-front"></i> Vehicles</Link>
                         </li>
                         <li className='nav-item user-select-none'>
-                            <Link className="nav-link active text-white" aria-current="page" to='/clients'><i className="bi bi-car-front"></i> Clientes</Link>
+                            <Link className="nav-link active text-white" aria-current="page" to='/clients'><i className="bi bi-person-circle"></i> Clientes</Link>
                         </li>
                     </ul>
                     <ul className='navbar-nav'>
