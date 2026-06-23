@@ -7,9 +7,17 @@ import { ModalDelete } from "../components/Modal/index.jsx"
 import { LoadingScreen } from "../components/loading";
 import { api } from "../../service/api.js";
 import { AlertMessage } from "../components/Alert/index.jsx";
+import { Pagination } from "../components/Pagination/index.jsx";
 
 export default function PageMecanicos() {
-    const { mecanicos, SearchMecanicos } = useContext(ContextMecanicos)
+    //control page
+    const [CurrentPage, setCurrentPage] = useState(1)
+    const [postPerPage, setPostPerPage] = useState(10)
+    const paginate = (Number) => setCurrentPage(Number)
+    const [pesquisa, setpesquisa] = useState('')
+    const [filtroStatus, setfriltroStatus] = useState('Todos')
+
+    const { mecanicos, SearchMecanicos, post, setpost } = useContext(ContextMecanicos)
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const [laoding, setloading] = useState(false)
     const [alert, setalert] = useState(false)
@@ -32,6 +40,18 @@ export default function PageMecanicos() {
         }
         carregardados()
     }, [])
+    const clientsFiltrados =
+        post.filter(ve => {
+            const termo = pesquisa.toLowerCase()
+            const bateTexto =
+                (ve.name?.toLowerCase().includes(termo) || '')
+                || (ve.services?.toLowerCase().includes(termo) || '')
+            const bateStatus = filtroStatus === 'Todos' || ve.situacao === filtroStatus
+            return bateTexto && bateStatus
+        });
+    let indexoflastpost = CurrentPage * postPerPage
+    let indexoffirtpost = indexoflastpost - postPerPage
+    const clientsExibidos = clientsFiltrados.slice(indexoffirtpost, indexoflastpost)
     function EditLoad(id_mecanico, name, genero, cpf, email, telefone, titulo_prossional, experiencia, descricao, client) {
         navigate('/mecanicos/add/' + id_mecanico, {
             state: {
@@ -86,7 +106,7 @@ export default function PageMecanicos() {
                 <AlertMessage msg={alertmsg}></AlertMessage>
             )}
             <Navbar></Navbar>
-            <div className="d-flex justify-content-between align-items-center">
+            <div>
                 <div>
                     <h2 className="d-inline">Mecanicos</h2>
                     <Link
@@ -94,6 +114,47 @@ export default function PageMecanicos() {
                         className="btn btn-outline-primary ms-5 mb-2"
                     >Adicionar mecanico
                     </Link>
+                </div>
+                <div className="row g-3 mb-4 align-items-center">
+                    <div className="col-md-4">
+                        <div className="input-group">
+                            <span className="input-group-text bg-white border-end-0">
+                                <i className="bi bi-search text-muted"></i>
+                            </span>
+                            <input
+                                type="text"
+                                className="form-control border-start-0 ps-0"
+                                placeholder="Buscar por Nome, Servicos..."
+                                value={pesquisa}
+                                onChange={(e) => setpesquisa(e.target.value)}
+                            ></input>
+                        </div>
+                    </div>
+                    <div className="col-md-1">
+                        <select
+                            className="form-select"
+                            value={filtroStatus}
+                            onChange={(e) => setfriltroStatus(e.target.value)}
+                        >
+                            <option value='Todos'>Status: Todos</option>
+                            <option value='A'>Ativo</option>
+                            <option value='I'>Inativo</option>
+                        </select>
+                    </div>
+                    {pesquisa != '' && (
+                        <div className="col-md-2 animacao-fade-ind">
+                            <button
+                                className="btn btn-link text-danger text-decoration-none p-0 fw-semibold d-flex align-items-center"
+                                onClick={() => {
+                                    setpesquisa('')
+                                    setfriltroStatus('Todos')
+                                }}
+                            >
+                                <i className="bi bi-x-circle-fill me-2"></i>
+                                Limpar Filtros
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
             <div>
@@ -106,9 +167,9 @@ export default function PageMecanicos() {
                             <th scope="col">Situação</th>
                         </tr>
                     </thead>
-                    {mecanicos && (
+                    {clientsExibidos.length > 0 ? (
                         <tbody>
-                            {mecanicos.map(item => {
+                            {clientsFiltrados.map(item => {
                                 return (
                                     <Mecanicos
                                         key={item.id_mecanico}
@@ -130,8 +191,19 @@ export default function PageMecanicos() {
                                 )
                             })}
                         </tbody>
+                    ) : (
+                        <tr>
+                            <td colSpan='6' className="text-center py-5 bg-light-subtle">
+                                <div className="d-flex flex-column align-items-center justify-content-center text-muted">
+                                    <i className="bi bi=search-hear fs-1 mb-3 text-secondary"></i>
+                                    <h5 className="fw-bold text-dark mb-1">Nenhum mecanico encontrado</h5>
+                                </div>
+                            </td>
+                        </tr>
                     )}
                 </table>
+                <Pagination postPerPage={postPerPage} totalPost={clientsFiltrados.length} paginate={paginate}></Pagination>
+
             </div>
         </div>
     )

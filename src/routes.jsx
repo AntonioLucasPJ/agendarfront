@@ -16,6 +16,7 @@ import MecanicosAdd from "./pages/mecanicos-add/index.jsx";
 import PageVehicle from "./pages/vehicle/index.jsx";
 import VehicleAdd from "./pages/vehicle-add/index.jsx";
 import ClientPage from "./pages/clients/index.jsx";
+import { PageClientPerfil } from "./pages/PerfilClients/index.jsx";
 
 export const Rotas = () => {
     return (
@@ -103,6 +104,12 @@ export const Rotas = () => {
                                 <Route path="/clients/" element={
                                     <RoutesProtect>
                                         <ClientPage></ClientPage>
+                                    </RoutesProtect>
+                                }>
+                                </Route>
+                                <Route path="/clientsperfil/:id_client" element={
+                                    <RoutesProtect>
+                                        <PageClientPerfil></PageClientPerfil>
                                     </RoutesProtect>
                                 }>
                                 </Route>

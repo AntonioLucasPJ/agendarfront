@@ -7,6 +7,7 @@ export const ContextMecanicos = createContext()
 export const MecanicosProvider = ({ children }) => {
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
     const [mecanicos, setmecanicos] = useState([])
+    const [post, setpost] = useState([])
     //Edit
     const [iditmecanicoid, setiditmecanicoid] = useState('')
     //Step 1
@@ -42,7 +43,7 @@ export const MecanicosProvider = ({ children }) => {
     async function SearchMecanicos() {
         const res = await api('/mecanicos')
         api.defaults.headers.Authorization = `Bearer ${tokenreal}`
-        setmecanicos(res.data)
+        setpost(res.data)
     }
     async function CreateMecanico() {
         let urlfinalimage = imagepreview
@@ -136,6 +137,6 @@ export const MecanicosProvider = ({ children }) => {
         setdescription('')
     }
     return (
-        <ContextMecanicos.Provider value={{ iditmecanicoid, setiditmecanicoid, arquivoImagem, setarquivoImagem, imagepreview, setimagepreview, mecanicos, nome, setnome, genero, setgenero, generoselecionado, setgeneroselecionado, cpf, setcpf, email, setemail, telefone, settelefone, serviceapi, setservicoselecionado, servicoselecionado, tituloprofissional, settituloprofissional, tituloprofissionalselecionado, settituloprofissionalselecionado, experiencia, setexperiencia, experienciaselecionada, setexperienciaselecionada, description, setdescription, statusservico, setstatusservico, activenotification, setactivenotification, msgnotification, setmsgnotification, loading, setloading, SearchMecanicos, setsteps, steps, CreateMecanico, Edit, LoadServices, CleanScreen }}>{children}</ContextMecanicos.Provider>
+        <ContextMecanicos.Provider value={{ setpost,post,iditmecanicoid, setiditmecanicoid, arquivoImagem, setarquivoImagem, imagepreview, setimagepreview, mecanicos, nome, setnome, genero, setgenero, generoselecionado, setgeneroselecionado, cpf, setcpf, email, setemail, telefone, settelefone, serviceapi, setservicoselecionado, servicoselecionado, tituloprofissional, settituloprofissional, tituloprofissionalselecionado, settituloprofissionalselecionado, experiencia, setexperiencia, experienciaselecionada, setexperienciaselecionada, description, setdescription, statusservico, setstatusservico, activenotification, setactivenotification, msgnotification, setmsgnotification, loading, setloading, SearchMecanicos, setsteps, steps, CreateMecanico, Edit, LoadServices, CleanScreen }}>{children}</ContextMecanicos.Provider>
     )
 }

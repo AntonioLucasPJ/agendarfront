@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Navbar } from "../components/navbar";
 import { useEffect, useState } from "react";
 import { api } from "../../service/api";
@@ -9,22 +9,36 @@ import { ModalDelete } from "../components/Modal";
 
 export default function ClientPage() {
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
+    const navigate = useNavigate()
     const [clientsapi, setclientsapi] = useState([])
     const [post, setpost] = useState([])
     const [CurrentPage, setCurrentPage] = useState(1)
-    const [postPerPage, setPostPerPage] = useState(8)
+    const [postPerPage, setPostPerPage] = useState(10)
     const paginate = (Number) => setCurrentPage(Number)
-
+    const [pesquisa, setpesquisa] = useState('')
+    const [filtroStatus, setfriltroStatus] = useState('Todos')
     //tools in paga
     const [loading, setloading] = useState(false)
     const [alertdelete, setalertdelete] = useState(false)
-    function Editar() {
-        console.log('teste')
+
+
+    function Editar(id_user) {
+        navigate(`/clientsperfil/${id_user}`)
     }
     function Delete() {
         console.log('teste')
     }
+    const clientsFiltrados =
+        clientsapi.filter(client => {
+            const termo = pesquisa.toLowerCase()
+            const bateTexto =
+                (client.name?.toLowerCase().includes(termo) || '')
+                || (client.email?.toLowerCase().includes(termo) || '')
+                || (client.cpf?.includes(termo) || '')
+                || (client.telefone.includes(termo) || '')
+            const bateStatus = filtroStatus === 'Todos' || client.status === filtroStatus
+            return bateTexto && bateStatus
+        });
     useEffect(() => {
         async function LoadClient() {
             setloading(true)
@@ -49,6 +63,7 @@ export default function ClientPage() {
         }
         LoadClient()
     }, [CurrentPage])
+
     return (
         <div className="container-fluid mt-page">
             {loading && (
@@ -63,15 +78,56 @@ export default function ClientPage() {
                 ></ModalDelete>
             )}
             <Navbar></Navbar>
-            <div>
-                <h2 className="d-inline user-select-none">Clientes</h2>
-                <p className="text-muted m-0">Gerenci os perfis, contatos</p>
+            <div className="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 className="d-inline user-select-none">Clientes</h2>
+                    <Link
+                        className='btn btn-outline-primary ms-5 mb-2'
+                        to="/appointments/add"
+                    >Adicionar Clientes</Link>
+                </div>
             </div>
-            <Link
-                className='btn btn-outline-primary ms-5 mb-2'
-                to="/appointments/add"
-            >Novo Agendamento</Link>
-
+            <div className="row g-3 mb-4 align-items-center">
+                <div className="col-md-4">
+                    <div className="input-group">
+                        <span className="input-group-text bg-white border-end-0">
+                            <i className="bi bi-search text-muted"></i>
+                        </span>
+                        <input
+                            type="text"
+                            className="form-control border-start-0 ps-0"
+                            placeholder="Buscar por Nome, CPF ou telefone..."
+                            value={pesquisa}
+                            onChange={(e) => setpesquisa(e.target.value)}
+                        ></input>
+                    </div>
+                </div>
+                <div className="col-md-1">
+                    <select
+                        className="form-select"
+                        value={filtroStatus}
+                        onChange={(e) => setfriltroStatus(e.target.value)}
+                    >
+                        <option value='Todos'>Status: Todos</option>
+                        <option value='A'>Ativo</option>
+                        <option value='I'>Inativo</option>
+                    </select>
+                </div>
+                {pesquisa != '' && (
+                    <div className="col-md-2 animacao-fade-ind">
+                        <button
+                            className="btn btn-link text-danger text-decoration-none p-0 fw-semibold d-flex align-items-center"
+                            onClick={() => {
+                                setpesquisa('')
+                                setfriltroStatus('Todos')
+                            }}
+                        >
+                            <i className="bi bi-x-circle-fill me-2"></i>
+                            Limpar Filtros
+                        </button>
+                    </div>
+                )}
+            </div>
             {clientsapi.length > 0 && (
                 <div>
                     <div className="user-select-none">
@@ -87,9 +143,9 @@ export default function ClientPage() {
 
                                 </tr>
                             </thead>
-                            {clientsapi && (
+                            {clientsFiltrados.length > 0 ? (
                                 <tbody>
-                                    {clientsapi.map(item => {
+                                    {clientsFiltrados.map(item => {
                                         return (
                                             <Clients
                                                 key={item.id_user}
@@ -104,6 +160,15 @@ export default function ClientPage() {
                                         )
                                     })}
                                 </tbody>
+                            ) : (
+                                <tr>
+                                    <td colSpan='6' className="text-center py-5 bg-light-subtle">
+                                        <div className="d-flex flex-column align-items-center justify-content-center text-muted">
+                                            <i className="bi bi=search-hear fs-1 mb-3 text-secondary"></i>
+                                            <h5 className="fw-bold text-dark mb-1">Nenhum usuario encontrado</h5>
+                                        </div>
+                                    </td>
+                                </tr>
                             )}
                         </table>
                         <Pagination postPerPage={postPerPage} totalPost={post.length} paginate={paginate}></Pagination>

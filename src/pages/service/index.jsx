@@ -10,12 +10,22 @@ import { SearchService } from "../components/SearchService/index.jsx"
 import { setDate } from "date-fns"
 import { ModalDelete } from "../components/Modal/index.jsx"
 import { AlertMessage } from "../components/Alert/index.jsx"
+import { Pagination } from "../components/Pagination/index.jsx"
 
 export function Pageservice() {
+    //control page
+    const [post, setpost] = useState([])
+    const [CurrentPage, setCurrentPage] = useState(1)
+    const [postPerPage, setPostPerPage] = useState(10)
+    const paginate = (Number) => setCurrentPage(Number)
+    const [pesquisa, setpesquisa] = useState('')
+    const [filtroStatus, setfriltroStatus] = useState('Todos')
+
+    ///
     const [services, setservices] = useState([])
     const [loading, setloading] = useState(false)
-    const [alert,setalert] = useState(false)
-    const [msgalert,setmsgalert] = useState('')
+    const [alert, setalert] = useState(false)
+    const [msgalert, setmsgalert] = useState('')
     const [alertdelete, setalertdelete] = useState(false)
     const [iddelete, setiddelete] = useState('')
     const [error, seterror] = useState(false)
@@ -23,14 +33,15 @@ export function Pageservice() {
     const navigate = useNavigate()
     const { token } = useContext(UserContext)
     const tokenreal = token || localStorage.getItem("token")
+
     useEffect(() => {
         async function LoadService() {
             try {
                 setloading(true)
-                await new Promise(resolve => setTimeout(resolve, 1500))
+                await awaiting(1500)
                 const res = await api.get('/servicessearch')
                 api.defaults.headers.Authorization = `Bearer ${tokenreal}`
-                setservices(res.data)
+                setpost(res.data)
                 setloading(false)
             } catch (error) {
                 console.log(error)
@@ -41,6 +52,18 @@ export function Pageservice() {
         }
         LoadService()
     }, [])
+    const clientsFiltrados =
+        post.filter(ve => {
+            const termo = pesquisa.toLowerCase()
+            const bateTexto =
+                (ve.service?.toLowerCase().includes(termo) || '')
+                || (ve.description?.toLowerCase().includes(termo) || '')
+            const bateStatus = filtroStatus === 'Todos' || ve.status === filtroStatus
+            return bateTexto && bateStatus
+        });
+    let indexoflastpost = CurrentPage * postPerPage
+    let indexoffirtpost = indexoflastpost - postPerPage
+    const clientsExibidos = clientsFiltrados.slice(indexoffirtpost, indexoflastpost)
     function EditLoad(id_service, service, description, icone_id, status, client) {
         navigate('/services/add/' + id_service, {
             state: {
@@ -64,9 +87,9 @@ export function Pageservice() {
             setalert(true)
             setmsgalert(error.response.data.message)
             console.log(error.response.data.message)
-            setTimeout(()=>{
+            setTimeout(() => {
                 setalert(!alert)
-            },1000)
+            }, 1000)
             setalertdelete(false)
             setloading(false)
         }
@@ -89,7 +112,7 @@ export function Pageservice() {
                 ></ModalDelete>
             )}
             <Navbar></Navbar>
-            {alert &&(
+            {alert && (
                 <AlertMessage msg={msgalert}></AlertMessage>
             )}
             {!loading && error && (
@@ -105,7 +128,7 @@ export function Pageservice() {
                     </button>
                 </div>
             )}
-            {services.length > 0 && (
+            {post.length > 0 && (
                 <div>
                     <div>
                         <h2 className="d-inline user-select-none">Servicos</h2>
@@ -113,6 +136,47 @@ export function Pageservice() {
                             className='btn btn-outline-primary ms-5 mb-2'
                             to="/services/add"
                         >Novo servico</Link>
+                    </div>
+                    <div className="row g-3 mb-4 align-items-center">
+                        <div className="col-md-4">
+                            <div className="input-group">
+                                <span className="input-group-text bg-white border-end-0">
+                                    <i className="bi bi-search text-muted"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control border-start-0 ps-0"
+                                    placeholder="Buscar por Serviços,Descrição..."
+                                    value={pesquisa}
+                                    onChange={(e) => setpesquisa(e.target.value)}
+                                ></input>
+                            </div>
+                        </div>
+                        <div className="col-md-1">
+                            <select
+                                className="form-select"
+                                value={filtroStatus}
+                                onChange={(e) => setfriltroStatus(e.target.value)}
+                            >
+                                <option value='Todos'>Status: Todos</option>
+                                <option value='A'>Ativo</option>
+                                <option value='I'>Inativo</option>
+                            </select>
+                        </div>
+                        {pesquisa != '' && (
+                            <div className="col-md-2 animacao-fade-ind">
+                                <button
+                                    className="btn btn-link text-danger text-decoration-none p-0 fw-semibold d-flex align-items-center"
+                                    onClick={() => {
+                                        setpesquisa('')
+                                        setfriltroStatus('Todos')
+                                    }}
+                                >
+                                    <i className="bi bi-x-circle-fill me-2"></i>
+                                    Limpar Filtros
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <table className="table table-hover">
                         <thead>
@@ -124,26 +188,36 @@ export function Pageservice() {
                                 <th scope="col">Status</th>
                             </tr>
                         </thead>
-
-                        <tbody>
-                            {services.map(item => {
-                                return (
-                                    <SearchService
-                                        key={item.id_service}
-                                        id_service={item.id_service}
-                                        service={item.service}
-                                        description={item.description}
-                                        icone_id={item.icone_id}
-                                        status={item.status}
-                                        clickedit={(id, service, description, icone_id, status) => EditLoad(id, service, description, icone_id, status)}
-                                        clickdelete={(id_service) => DeletLoad(id_service)}
-                                    >
-                                    </SearchService>
-                                )
-                            })}
-                        </tbody>
-
+                        {clientsFiltrados.length > 0 ? (
+                            <tbody>
+                                {clientsExibidos.map(item => {
+                                    return (
+                                        <SearchService
+                                            key={item.id_service}
+                                            id_service={item.id_service}
+                                            service={item.service}
+                                            description={item.description}
+                                            icone_id={item.icone_id}
+                                            status={item.status}
+                                            clickedit={(id, service, description, icone_id, status) => EditLoad(id, service, description, icone_id, status)}
+                                            clickdelete={(id_service) => DeletLoad(id_service)}
+                                        >
+                                        </SearchService>
+                                    )
+                                })}
+                            </tbody>
+                        ) : (
+                            <tr>
+                                <td colSpan='6' className="text-center py-5 bg-light-subtle">
+                                    <div className="d-flex flex-column align-items-center justify-content-center text-muted">
+                                        <i className="bi bi=search-hear fs-1 mb-3 text-secondary"></i>
+                                        <h5 className="fw-bold text-dark mb-1">Nenhum servicos encontrado</h5>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
                     </table>
+                    <Pagination postPerPage={postPerPage} totalPost={clientsFiltrados.length} paginate={paginate}></Pagination>
                 </div>
             )}
         </div>

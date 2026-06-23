@@ -22,6 +22,7 @@ export default function Login() {
         setpassword,
         HandleLogin } = useContext(UserContext)
     const navigate = useNavigate()
+    const Isvalid = email.includes("@") && password.length >=8
     const LoadLogin = async (e) => {
         e.preventDefault()
         setloading(true)
@@ -71,13 +72,13 @@ export default function Login() {
                             <i className="bi bi-person-circle"></i>
                         </div>
                         <div className={styles.divitens}>
-                            <input disabled={email ==''?true:false} required={true} type={showtext ? '' : 'password'} placeholder='Senha...' onChange={(e) => setpassword(e.target.value)}></input>
+                            <input disabled={email.length <8?true:false} required={true} type={showtext ? '' : 'password'} placeholder='Senha...' onChange={(e) => setpassword(e.target.value)}></input>
                             <i onClick={(e) => setshowtext(!showtext)} className={showtext ? "bi bi-unlock" : "bi bi-lock"}></i>
                         </div>
 
                     </div>
                     <button className={styles.btn_acess} type='submit'
-                        disabled={password ==''?true : false}
+                        disabled={!Isvalid}
                     >Acessar</button>
                     <p>Não tem conta? <Link to='/singup' className={styles.linktext}>Criar conta agora</Link></p>
                 </form>

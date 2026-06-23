@@ -20,8 +20,11 @@ function Appointments() {
     const [CurrentPage, setCurrentPage] = useState(1)
     const [postPerPage, setPostPerPage] = useState(8)
     const [loading, setloading] = useState(true)
-    /// Change Page
+    const [pesquisa, setpesquisa] = useState('')
     const paginate = (Number) => setCurrentPage(Number)
+    const [filtroStatus, setfriltroStatus] = useState('Todos')
+
+    /// Change Page
     const [error, seterror] = useState(false)
     const [mecanicosapi, setmecanicosapi] = useState([])
     const [id_mecanico, setidmecanico] = useState('')
@@ -81,12 +84,6 @@ function Appointments() {
             api.defaults.headers.Authorization = `Bearer ${token}`
             const res = await api.get('/appointmentsall')
             setpost(res.data)
-            let indexoflastpost = CurrentPage * postPerPage
-            let indexoffirtpost = indexoflastpost - postPerPage
-            if(indexoffirtpost >= res.data.length){
-                indexoffirtpost =0;
-                indexoflastpost = postPerPage;
-            }
             const currentPost = res.data.slice(indexoffirtpost, indexoflastpost)
             setappointmentsbd(currentPost)
         } catch (error) {
@@ -94,6 +91,19 @@ function Appointments() {
         }
 
     }
+    const clientsFiltrados =
+        post.filter(ve => {
+            const termo = pesquisa.toLowerCase()
+            const bateTexto =
+                (ve.client?.toLowerCase().includes(termo) || '')
+                || (ve.mecanico?.toLowerCase().includes(termo) || '')
+                || (String(ve.id_appointement)?.toLowerCase().includes(termo) || '')
+            const bateStatus = filtroStatus === 'Todos' || ve.situacao === filtroStatus
+            return bateTexto && bateStatus
+        });
+    let indexoflastpost = CurrentPage * postPerPage
+    let indexoffirtpost = indexoflastpost - postPerPage
+    const clientsExibidos = clientsFiltrados.slice(indexoffirtpost, indexoflastpost)
     function Editar(id_appointement, client) {
         navigate("/appointments/edit/" + id_appointement, {
             state: {
@@ -146,11 +156,53 @@ function Appointments() {
             )}
             <Navbar></Navbar>
             <div>
-                <h2 className="d-inline user-select-none">Agendamentos</h2>
-                <Link
-                    className='btn btn-outline-primary ms-5 mb-2'
-                    to="/appointments/add"
-                >Novo Agendamento</Link>
+                <div>
+                    <h2 className="d-inline user-select-none">Agendamentos</h2>
+                    <Link
+                        className='btn btn-outline-primary ms-5 mb-2'
+                        to="/appointments/add"
+                    >Novo Agendamento</Link>
+                </div>
+                <div className="row g-3 mb-4 align-items-center">
+                    <div className="col-md-4">
+                        <div className="input-group">
+                            <span className="input-group-text bg-white border-end-0">
+                                <i className="bi bi-search text-muted"></i>
+                            </span>
+                            <input
+                                type="text"
+                                className="form-control border-start-0 ps-0"
+                                placeholder="Buscar por Nome, Servicos..."
+                                value={pesquisa}
+                                onChange={(e) => setpesquisa(e.target.value)}
+                            ></input>
+                        </div>
+                    </div>
+                    <div className="col-md-1">
+                        <select
+                            className="form-select"
+                            value={filtroStatus}
+                            onChange={(e) => setfriltroStatus(e.target.value)}
+                        >
+                            <option value='Todos'>Status: Todos</option>
+                            <option value='Pendente'>Pendente</option>
+                        </select>
+                    </div>
+                    {pesquisa != '' && (
+                        <div className="col-md-2 animacao-fade-ind">
+                            <button
+                                className="btn btn-link text-danger text-decoration-none p-0 fw-semibold d-flex align-items-center"
+                                onClick={() => {
+                                    setpesquisa('')
+                                    setfriltroStatus('Todos')
+                                }}
+                            >
+                                <i className="bi bi-x-circle-fill me-2"></i>
+                                Limpar Filtros
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
             {!loading && error && (
                 <div className="container-fluid d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '75vh' }}>
@@ -180,9 +232,9 @@ function Appointments() {
                                     <th scope="col" className={styles.colbuttons}></th>
                                 </tr>
                             </thead>
-                            {appointmentsbd && (
+                            {clientsExibidos.length > 0 ? (
                                 <tbody>
-                                    {appointmentsbd.map(item => {
+                                    {clientsExibidos.map(item => {
                                         return (
                                             <Appointment
                                                 key={item.id_appointment}
@@ -199,9 +251,18 @@ function Appointments() {
                                         )
                                     })}
                                 </tbody>
+                            ) : (
+                                <tr>
+                                    <td colSpan='6' className="text-center py-5 bg-light-subtle">
+                                        <div className="d-flex flex-column align-items-center justify-content-center text-muted">
+                                            <i className="bi bi=search-hear fs-1 mb-3 text-secondary"></i>
+                                            <h5 className="fw-bold text-dark mb-1">Nenhum agendamento encontrado</h5>
+                                        </div>
+                                    </td>
+                                </tr>
                             )}
                         </table>
-                        <Pagination postPerPage={postPerPage} totalPost={post.length} paginate={paginate}></Pagination>
+                        <Pagination postPerPage={postPerPage} totalPost={clientsFiltrados.length} paginate={paginate}></Pagination>
                         {appointmentsbd == '' ?
                             <div className={styles.contentempty}>
                                 <h1>Dados não carregados</h1>
