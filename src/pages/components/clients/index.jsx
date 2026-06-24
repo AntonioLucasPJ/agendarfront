@@ -27,7 +27,7 @@ export function Clients(props) {
 
         <td className="text-end">
             <div className="d-inline me-2">
-                <button className="btn btn-sm btn-primary" onClick={() => props.clickedit(props.id_user)}><i className="bi bi-pencil-square"></i></button>
+                <button className="btn btn-sm btn-primary" onClick={() => props.clickedit(props.id_user,props.client,props.cpf,props.email,props.telefone,props.endereco)}><i className="bi bi-pencil-square"></i></button>
             </div>
             <button className="btn btn-sm btn-danger" onClick={() => props.clickdelete(props.id_user)}><i className="bi bi-trash3"></i></button>
         </td>

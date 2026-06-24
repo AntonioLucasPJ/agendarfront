@@ -22,8 +22,16 @@ export default function ClientPage() {
     const [alertdelete, setalertdelete] = useState(false)
 
 
-    function Editar(id_user) {
-        navigate(`/clientsperfil/${id_user}`)
+    function Editar(id_user, client, cpf, email, telefone, endereco) {
+        navigate(`/clientsperfil/${id_user}`, {
+            state: {
+                perfilclient: client,
+                perfilcpf: cpf,
+                perfilemail: email,
+                perfiltelefone: telefone,
+                perfilendereco: endereco
+            }
+        })
     }
     function Delete() {
         console.log('teste')
@@ -154,7 +162,8 @@ export default function ClientPage() {
                                                 cpf={item.cpf}
                                                 email={item.email}
                                                 telefone={item.telefone}
-                                                clickedit={Editar}
+                                                endereco={item.endereco}
+                                                clickedit={(id_user, client, cpf, email, telefone, endereco) => Editar(id_user, client, cpf, email, telefone, endereco)}
                                                 clickdelete={Delete}
                                             ></Clients>
                                         )
