@@ -3,7 +3,7 @@ import { LoadingScreen } from "../components/loading"
 import { Link, useLocation, useParams } from "react-router"
 import { Navbar } from "../components/navbar"
 import { api } from "../../service/api"
-import { ModalAddVehicle } from "../components/ModalComponente"
+import { ModalAddVehicle } from "../components/ModalVehicle"
 
 export function PageClientPerfil() {
     const location = useLocation()
@@ -12,11 +12,11 @@ export function PageClientPerfil() {
     const { id_user } = useParams()
     const [loading, setloading] = useState(false)
     const [alertdelete, setalertdelete] = useState(false)
-    const [modalaberto,setmodalaberto] = useState(false)
+    const [modalaberto, setmodalaberto] = useState(false)
     const [veiculoParaDesvincular, setVeiculoParaDesvincular] = useState(null)
     const [abaAtiva, setabaAtiva] = useState('pessoas')
     const [veiculosVinculados, setveiculosVinculados] = useState([])
-    function SalvarVeiculoNoBanco(){
+    function SalvarVeiculoNoBanco() {
         console.log('Salva')
     }
     useEffect(() => {
@@ -29,15 +29,15 @@ export function PageClientPerfil() {
                     id_user: id_user
                 })
                 setloading(false)
-                console.log(res.data)
+
                 setveiculosVinculados(res.data)
             } catch (error) {
                 setloading(false)
                 console.log(error)
-            }finally{
+            } finally {
                 setloading(false)
             }
-            
+
         }
         LoadVehicle()
     }, [])
@@ -47,6 +47,12 @@ export function PageClientPerfil() {
                 <LoadingScreen></LoadingScreen>
             )}
             <Navbar></Navbar>
+            <ModalAddVehicle
+                isOpen={modalaberto}
+                onClose={() => setmodalaberto(!modalaberto)}
+                onConfirm={SalvarVeiculoNoBanco}
+                nomeClient={'teste'}
+            ></ModalAddVehicle>
             <div className="d-flex justify-content-between align-items-center mb-4 mt-3">
                 <div>
                     <h2 className="fw-bold m-0 text-dark">Gestão do Cliente: {name}</h2>
@@ -55,12 +61,7 @@ export function PageClientPerfil() {
                     Novo Agendamento
                 </Link>
             </div>
-            {/* <ModalAddVehicle
-            isOpen={modalaberto}
-            onClose={()=> setmodalaberto(false)}
-            onConfirm={SalvarVeiculoNoBanco}
-            nomeClient={'teste'}
-            ></ModalAddVehicle> */}
+
             <div className="row g-4">
                 <div className="col-lg-5 cofl-md-12">
                     <div className="card p-4 borde shadow-sm roundend-3 bg-white mb-4">
@@ -148,7 +149,8 @@ export function PageClientPerfil() {
                     <div className="card p-4 border shadow-sm rounded-3 bg-white">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h4 className="fw-bold m-0 text-dark">Carros do Cliente</h4>
-                            <button className="btn btn-sm bt-primary fw-smibold px-3 py-2">
+                            <button className="btn btn-sm bt-primary fw-smibold px-3 py-2"
+                            onClick={()=> setmodalaberto(true)}>
                                 <i className="bi bi-plus-circle-fill me-2"></i>Veiculo
                             </button>
                         </div>
