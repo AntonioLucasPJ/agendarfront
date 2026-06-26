@@ -1,23 +1,46 @@
 import { useEffect, useState } from "react"
 import { api } from "../../../service/api";
 
-export function ModalAddVehicle({isOpen, onClose, onConfirm, nomCliente}) {
+export function ModalAddVehicle({ isOpen, onClose, onConfirm, nomCliente }) {
     const [pesquisa, setpesquisa] = useState('')
     const [veiculoselecionado, setveiculoselecionado] = useState(null)
     const [placa, setplaca] = useState('');
     const [cor, setcor] = useState('')
     const [todosveiculos, setTodosVeiculos] = useState([])
+    const isValid = veiculoselecionado !== '' && placa.length >= 7 && cor.length >= 4
+    const aplicarMascarPlaca = (texto) => {
+        let valor = texto.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+        valor = valor.substring(0, 7)
+        if (valor.length <= 3) {
+            return valor
+        }
+        const quatroCaractere = valor[3];
+        const quintoCaractere = valor[4];
+        if (quatroCaractere >= 0 && quatroCaractere <= '9') {
+            if (quintoCaractere && (quintoCaractere < '0' || quintoCaractere > '9')) {
+                return valor;
+            }
+            return valor.replace(/^([A-Z]{3})([0-9]{0,4})$/, "$1-$2")
+        }
+        return valor
+    }
+    const validarplacabrasileira = (placa) => {
+        const placalimpa = placa.replace('-', '').toUpperCase()
+        const regexAntiga = /^[A-Z]{3}[0-9]{4}$/;
+        const regexMercosul = /^[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}$/;
+        return regexAntiga.test(placalimpa) || regexMercosul.test(placalimpa)
+    }
     const veiculosFiltrados = todosveiculos.filter(veiculo => {
         const termo = pesquisa.toLowerCase();
-        return  veiculo.model.toLocaleLowerCase().includes(termo)
+        return veiculo.model.toLocaleLowerCase().includes(termo)
     })
-    useEffect(()=>{
-        async function SearchVehicle(){
+    useEffect(() => {
+        async function SearchVehicle() {
             const res = await api.get(`vehiclesall`)
             setTodosVeiculos(res.data)
         }
         SearchVehicle()
-    },[])
+    }, [])
     useEffect(() => {
         if (!isOpen) {
             setpesquisa('')
@@ -110,7 +133,7 @@ export function ModalAddVehicle({isOpen, onClose, onConfirm, nomCliente}) {
                                         className="form-control"
                                         placeholder="Ex: CIE-3H80"
                                         value={placa}
-                                        onChange={(e) => setplaca(e.target.value)}
+                                        onChange={(e) => setplaca(aplicarMascarPlaca(e.target.value))}
                                     ></input>
                                 </div>
                                 <div className="col-md-6">
@@ -131,14 +154,18 @@ export function ModalAddVehicle({isOpen, onClose, onConfirm, nomCliente}) {
                                     type="button"
                                     className="btn btn-light border fw-semibold w-50 py-2"
                                     onClick={onClose}
-                               >
+                                >
                                     Cancelar
                                 </button>
                                 <button
                                     type="button"
                                     className="btn btn-dark fw-semibold w-50 py-2"
-                                    disabled={!veiculoselecionado}
-                                    onClick={()=> onConfirm({veiculoselecionado,quilometragem,cor})}
+                                    disabled={!isValid}
+                                    onClick={() => onConfirm({
+                                        veiculoselecionado:veiculoselecionado,
+                                        placa:placa,
+                                        cor:cor
+                                    })}
                                 >
                                     Cadastrar Veiculo
                                 </button>

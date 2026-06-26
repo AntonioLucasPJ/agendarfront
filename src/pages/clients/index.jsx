@@ -23,6 +23,7 @@ export default function ClientPage() {
 
 
     function Editar(id_user, client, cpf, email, telefone, endereco) {
+        console.log(email)
         navigate(`/clientsperfil/${id_user}`, {
             state: {
                 perfilclient: client,
@@ -83,6 +84,7 @@ export default function ClientPage() {
                     description='Voçê tem certeza que deseja deletar esse veiculo?'
                     onclick={() => setalertdelete(false)}
                     ondelete={() => DeleteService()}
+                    onConfirm={(veiculoselecionado,placa,cor)=> CadastrarVeiculos(veiculoselecionado,placa,cor)}
                 ></ModalDelete>
             )}
             <Navbar></Navbar>
@@ -148,7 +150,6 @@ export default function ClientPage() {
                                     <th scope="col">Email</th>
                                     <th scope="col">Telefone</th>
                                     <th scope="col" className="text-end">Status</th>
-
                                 </tr>
                             </thead>
                             {clientsFiltrados.length > 0 ? (
@@ -162,6 +163,7 @@ export default function ClientPage() {
                                                 cpf={item.cpf}
                                                 email={item.email}
                                                 telefone={item.telefone}
+                                                status ={item.status}
                                                 endereco={item.endereco}
                                                 clickedit={(id_user, client, cpf, email, telefone, endereco) => Editar(id_user, client, cpf, email, telefone, endereco)}
                                                 clickdelete={Delete}

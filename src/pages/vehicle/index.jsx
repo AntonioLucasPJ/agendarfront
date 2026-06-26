@@ -6,6 +6,7 @@ import { api } from "../../service/api";
 import { ModalDelete } from "../components/Modal";
 import { LoadingScreen } from "../components/loading";
 import { Pagination } from "../components/Pagination";
+import { AlertMessage } from "../components/Alert";
 
 export default function PageVehicle() {
     //control page
@@ -17,6 +18,8 @@ export default function PageVehicle() {
     const [filtroStatus, setfriltroStatus] = useState('Todos')
 
     const [loading, setloading] = useState(false)
+    const [alert,setalert] = useState(false)
+    const [msgalert,setmsgalert] = useState('')
     const [alertdelete, setalertdelete] = useState(false)
     const [iddelete, setiddelete] = useState('')
     const [vehicle, setvehicle] = useState([])
@@ -106,6 +109,9 @@ export default function PageVehicle() {
                     </Link>
                 </div>
             </div>
+            {msgalert && (
+                <AlertMessage msg={msgalert}></AlertMessage>
+            )}
             <div className="row g-3 mb-4 align-items-center">
                 <div className="col-md-4">
                     <div className="input-group">

@@ -4,32 +4,103 @@ import { Link, useLocation, useParams } from "react-router"
 import { Navbar } from "../components/navbar"
 import { api } from "../../service/api"
 import { ModalAddVehicle } from "../components/ModalVehicle"
+import { ModalDelete } from "../components/Modal"
+import { AlertMessage } from "../components/Alert"
+import { id, tr } from "date-fns/locale"
 
 export function PageClientPerfil() {
     const location = useLocation()
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+    //Informações Pessoais
     const { perfilclient, perfilcpf, perfilemail, perfiltelefone, perfilendereco } = location.state || {}
-    const { id_user } = useParams()
+    const [client, setclient] = useState([])
+    const [editandonome, seteditandonome] = useState(false)
+    const [editandotelefone, seteditandotelefone] = useState(false)
+    const [editandocpf, seteditandocpf] = useState(false)
+    const [editandoemail, seteditandoemail] = useState(false)
+    ///
+    const { id_user } = useParams() || ''
     const [loading, setloading] = useState(false)
+    const [alert, setalert] = useState(false)
     const [alertdelete, setalertdelete] = useState(false)
+    const [iddelete, setiddelete] = useState('')
+    const [alertmsg, setalertmsg] = useState('')
+    const [imagepreview, setimagepreview] = useState('')
     const [modalaberto, setmodalaberto] = useState(false)
     const [veiculoParaDesvincular, setVeiculoParaDesvincular] = useState(null)
-    const [abaAtiva, setabaAtiva] = useState('pessoas')
+    const [abaAtiva, setabaAtiva] = useState('historico')
     const [veiculosVinculados, setveiculosVinculados] = useState([])
-    function SalvarVeiculoNoBanco() {
-        console.log('Salva')
+    //Aba historico
+    const [historicosServicos, sethistoricosServicos] = useState([])
+    async function SalvarVeiculoNoBanco(dadosrecebidos) {
+        const { veiculoselecionado, cor, placa } = dadosrecebidos
+        setloading(true)
+        try {
+            const res = await api.post('/vehicle/singupvehicle', {
+                user_id: id_user,
+                model_id: veiculoselecionado.id,
+                car_license_plate: placa,
+                color: cor
+            })
+            await awaiting(1500)
+            setloading(false)
+            setalert(!alert)
+            setalertmsg(res.data.message)
+            await awaiting(2000)
+            window.location.reload()
+
+        } catch (error) {
+            await awaiting(1000)
+            setalertmsg(error.response.data.message)
+            setalert(!alert)
+            setloading(false)
+        }
+    }
+    async function handleDesvincularVeiculo() {
+        try {
+            setloading(true)
+            await awaiting(2000)
+            const res = await api.delete(`vehicle/clientdelete/${iddelete}`)
+            setloading(false)
+            setalert(!alert)
+            setalertmsg(res.data.message)
+            await awaiting(1000)
+            setalertdelete(!alertdelete)
+            window.location.reload()
+        } catch (error) {
+            setloading(false)
+            console.log(error)
+        }
+    }
+    function LaodDelete(id) {
+        setalertdelete(!alertdelete)
+        setiddelete(id)
+    }
+    async function handleAtualizar(e) {
+        if (e) e.preventDefault()
+        setloading(true)
+        try {
+            await awaiting(1500)
+            const res = await api.put(`/users/edit/${id_user}`, {
+                name: client.name,
+                email: client.email,
+                cpf: client.cpf,
+                telefone: client.telefone
+            })
+            setloading(false)
+            setclient(res.data)
+        } catch (error) {
+            console.log(error)
+        }
     }
     useEffect(() => {
-        setveiculosVinculados([])
         async function LoadVehicle() {
             setloading(true)
             try {
                 await awaiting(1500)
-                const res = await api.get('/vehicle/searchvehicle', {
-                    id_user: id_user
-                })
+                const res = await api.post(`/vehicle/searchvehicle/${id_user}`,)
                 setloading(false)
-
                 setveiculosVinculados(res.data)
             } catch (error) {
                 setloading(false)
@@ -39,8 +110,30 @@ export function PageClientPerfil() {
             }
 
         }
-        LoadVehicle()
+        async function LoadServices() {
+            try {
+                const res = await api.get(`/appointements/${id_user}`)
+                sethistoricosServicos(res.data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        if (id_user) {
+            LoadVehicle()
+            LoadServices()
+        }
     }, [])
+    useEffect(() => {
+        if (id_user) {
+            const novoDados = {
+                name:perfilclient || '',
+                cpf:perfilcpf || '',
+                telefone: perfiltelefone || '',
+                email: perfilemail || ''
+            };
+            setclient(novoDados)
+        }
+    }, [id_user])
     return (
         <div className="container-fluid mt-page">
             {loading && (
@@ -50,9 +143,20 @@ export function PageClientPerfil() {
             <ModalAddVehicle
                 isOpen={modalaberto}
                 onClose={() => setmodalaberto(!modalaberto)}
-                onConfirm={SalvarVeiculoNoBanco}
+                onConfirm={(veiculoselecionado, placa, cor) => SalvarVeiculoNoBanco(veiculoselecionado, placa, cor)}
                 nomeClient={'teste'}
             ></ModalAddVehicle>
+            {alertdelete && (
+                <ModalDelete
+                    titulo='Deletar'
+                    description='Voçê tem certeza que deseja excluir esse veiculo?'
+                    onclick={() => setalertdelete(false)}
+                    ondelete={() => handleDesvincularVeiculo()}
+                ></ModalDelete>
+            )}
+            {alert && (
+                <AlertMessage msg={alertmsg}></AlertMessage>
+            )}
             <div className="d-flex justify-content-between align-items-center mb-4 mt-3">
                 <div>
                     <h2 className="fw-bold m-0 text-dark">Gestão do Cliente: {name}</h2>
@@ -67,12 +171,19 @@ export function PageClientPerfil() {
                     <div className="card p-4 borde shadow-sm roundend-3 bg-white mb-4">
                         <div className="d-flex align-items-center">
                             <div className="bg-darks text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 user-select-none" style={{ width: '65px', height: '65px', fontSize: '26px' }}>
-                                {name.charAt(0)}
+                                {client.name}
                             </div>
                             <div>
                                 <h4 className="fw-bold m-0 text-dark">{perfilclient}</h4>
-                                <p className="text-muted m-0 small">{perfiltelefone}</p>
-                                <p className="text-muted m-0 small"><i className="bi bi-geo-alt fill me-1"></i>{perfilendereco}</p>
+                                <p className="text-muted m-0 small">
+                                    <i className="bi bi-telephone me-2"></i>{perfiltelefone}
+                                </p>
+                                <p className="text-muted m-0 small">
+                                    <i className="bi bi-envelope me-2"></i>{perfilemail}
+                                </p>
+                                <p className="text-muted m-0 small">
+                                    <i className="bi bi-geo-alt fill me-1"></i>{perfilendereco}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -98,51 +209,137 @@ export function PageClientPerfil() {
                         {abaAtiva === 'pessoais' ? (
                             <div>
                                 <h4 className="fw-bold text-dark mb-4">Dados Básicos</h4>
-                                <div className="row g-3">
-                                    <div className="col-md-12">
-                                        <label className="form-label text-secondary fw-semibold">Nome</label>
-                                        <input
-                                            type="text"
-                                            className="form-control bg-light"
-                                            value={perfilclient}
-                                            onChange={(e) => setclient({ ...client, name: e.target.value })}
-                                        ></input>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <label className="form-label text-secondary fw-semibold">CPF</label>
-                                        <div className="input-group input-group-lg">
-                                            <input type="text" className="form-control bg-light" value={perfilcpf} readOnly></input>
-                                            <button className="btn btn-primary" onClick={''}>
-                                                <i className="bi bi-pencil-square"></i>
-                                            </button>
+                                <form onSubmit={(e)=>handleAtualizar(e)}>
+                                    <div className="row g-3">
+                                        <div className="col-md-12">
+                                            <label className="form-label text-secondary fw-semibold">Nome</label>
+                                            <div className="input-group input-group-lg">
+                                                <input
+                                                    type="text"
+                                                    className="form-control bg-light"
+                                                    value={client.name || ''}
+                                                    onChange={(e) => setclient({ ...client, name: e.target.value })}
+                                                    readOnly={!editandonome}
+                                                ></input>
+                                                <button className="btn btn-primary"
+                                                    onClick={() => seteditandonome(!editandonome)}>
+                                                    <i className="bi bi-pencil-square"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <label className="form-label text-secondary fw-semibold">Telefone</label>
-                                        <div className="input-group input-group-lg">
-                                            <input type="text" className="form-control bg-light" value={perfiltelefone} readOnly></input>
-                                            <button className="btn btn-primary" onClick={''}>
-                                                <i className="bi bi-pencil-square"></i>
-                                            </button>
+                                        <div className="col-md-12">
+                                            <label className="form-label text-secondary fw-semibold">CPF</label>
+                                            <div className="input-group input-group-lg">
+                                                <input
+                                                    type="text"
+                                                    className="form-control bg-light"
+                                                    value={client.cpf || ''}
+                                                    onChange={(e) => setclient({ ...client, cpf: e.target.value })}
+                                                    readOnly={!editandocpf}
+                                                ></input>
+                                                <button className="btn btn-primary"
+                                                    onClick={() => seteditandocpf(!editandocpf)}>
+                                                    <i className="bi bi-pencil-square"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <label className="form-label text-secondary fw-semibold">Email</label>
-                                        <div className="input-group input-group-lg">
-                                            <input type="text" className="form-control bg-light" value={perfilemail} readOnly></input>
-                                            <button className="btn btn-primary" onClick={''}>
-                                                <i className="bi bi-pencil-square"></i>
-                                            </button>
+                                        <div className="col-md-12">
+                                            <label className="form-label text-secondary fw-semibold">Telefone</label>
+                                            <div className="input-group input-group-lg ">
+                                                <input
+                                                    type="text"
+                                                    className="form-control bg-light"
+                                                    value={client.telefone}
+                                                    readOnly={!editandotelefone}
+                                                    onChange={(e) => setclient({ ...client, telefone: e.target.value })}
+                                                ></input>
+                                                <button className="btn btn-primary" onClick={() => seteditandotelefone(!editandotelefone)}>
+                                                    <i className="bi bi-pencil-square"></i>
+                                                </button>
+                                            </div>
                                         </div>
+                                        <div className="col-md-12">
+                                            <label className="form-label text-secondary fw-semibold">Email</label>
+                                            <div className="input-group input-group-lg">
+                                                <input
+                                                    type="text"
+                                                    className="form-control bg-light"
+                                                    value={client.email}
+                                                    readOnly={!editandoemail}></input>
+                                                <button className="btn btn-primary" onClick={() => seteditandoemail(!editandoemail)}>
+                                                    <i className="bi bi-pencil-square"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button
+                                            className={`btn ${editandocpf ? 'btn-sucess' : 'btn-primary'}`}
+                                            type="button"
+                                            onClick={() => seteditandocpf(!editandocpf)}
+                                        >
+                                            <i className={editandocpf ? 'bi bi-check-lg' : 'bi bi-prencil-square'}></i>
+                                            Atualizar
+                                        </button>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         ) : (
-                            <div className="text-center py-4 text-muted">
-                                <i className="bi bi-journal-text fs-1 d-block mb-2"></i>
-                                <p>Nenhum servico ou ordem de servico registrada para este cliente</p>
-                            </div>
+                            ''
                         )}
+                        {abaAtiva === 'historico' ? (
+                            <div>
+                                <div>
+                                    <h4 className="fw-bold text-dark m-0">Historico de Ordem de servicos</h4>
+                                    <span className="badge bg-primary rounded-pill px-3 py-2">
+                                        {historicosServicos.length} Registro(s)
+                                    </span>
+                                </div>
+                                <div className="table-responsive">
+                                    <table className="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr className="text-secondary small fw-bold">
+                                                <th scope="col" style={{ width: '60px' }}>OS</th>
+                                                <th scope="col">Veiculo</th>
+                                                <th scope="col">Servicos Executados</th>
+                                                <th scope="col">Data</th>
+                                                <th scope="col">Total</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col" className="text-end" style={{ width: '100px' }}>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {historicosServicos.length > 0 ? (
+                                                historicosServicos.map((item) => (
+                                                    <tr key={item.id_appointment}>
+                                                        <td className="text-muted fw-semibold">#{item.id_appointment}</td>
+                                                        <td>
+                                                            <span className="fw-bold text-dark d-block">{item.id_appointment}</span>
+                                                        </td>
+                                                        <td>
+                                                            <span className="text-truncate d-inline-block" style={{ maxWidth: '250px' }}>
+                                                                {item.service}
+                                                            </span>
+                                                        </td>
+                                                        <td>{item.booking_date}</td>
+                                                        <td>'Sem cobranca'</td>
+                                                        <td>{item.status}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan='7' className="text-center py-5">
+                                                        <div className="text-center py-4 text-muted">
+                                                            <i className="bi bi-journal-text fs-1 d-block mb-2"></i>
+                                                            <h4>Nenhum servico ou ordem de servico registrada para este cliente</h4>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ) : ''}
                     </div>
                 </div>
                 <div className="col-lg col-md-12">
@@ -150,7 +347,7 @@ export function PageClientPerfil() {
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h4 className="fw-bold m-0 text-dark">Carros do Cliente</h4>
                             <button className="btn btn-sm bt-primary fw-smibold px-3 py-2"
-                            onClick={()=> setmodalaberto(true)}>
+                                onClick={() => setmodalaberto(true)}>
                                 <i className="bi bi-plus-circle-fill me-2"></i>Veiculo
                             </button>
                         </div>
@@ -168,49 +365,70 @@ export function PageClientPerfil() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {veiculosVinculados.map((item) => (
-                                        <tr key={item.id}>
-                                            <td className="text-muted fw-semibold">{item.id}</td>
-                                            <td>
-                                                <img
-                                                    src={item.imagem_url}
-                                                    alt={item.marca}
-                                                    style={{ width: '35px', height: '35px', objectFit: 'contain' }}
-                                                    onError={(e) => { e.target.src }}
-                                                ></img>
-                                            </td>
-                                            <td>
-                                                <span className="fw-bold text-dark">{item.model}</span>
-                                            </td>
-                                            <td>{item.year}</td>
-                                            <td>
-                                                <span className="badge bg-light text-dark border font-monospace px-2.5 py-1.5">{item.license_plate}</span>
-                                            </td>
-                                            <td>
-                                                <span className={`badge px-2.5 py-1.5 rounded-pill ${item.ativo === 'A' ? 'bg-sucess-subtle text-sucess' : 'bg-danger-subtle text-danger'}`}>
-                                                    <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }}></i>
-                                                    {item.status === 'A' ? 'Ativo' : 'Inativo'}
-                                                </span>
-                                            </td>
-                                            <td className="text-end">
-                                                {/* Atalho rápido para ver ordens de serviço do carro */}
-                                                <button className="btn btn-primary btn-sm me-1 fw-semibold px-2.5">
-                                                    <i className="bi bi-tools me-1"></i> Serviços
-                                                </button>
-                                                {/* Botões padrão de Ação da Oficina */}
-                                                <button className="btn btn-outline-primary btn-sm me-1" title="Editar Veículo">
-                                                    <i className="bi bi-pencil-square"></i>
-                                                </button>
-                                                <button
-                                                    className="btn btn-danger btn-sm"
-                                                    title="Desvincular Veículo"
-                                                    onClick={() => handleDesvincularVeiculo(item.id_veiculo)}
-                                                >
-                                                    <i className="bi bi-trash3-fill"></i>
-                                                </button>
+                                    {veiculosVinculados && veiculosVinculados.length > 0 ? (
+                                        veiculosVinculados.map((item) => (
+                                            <tr key={item.id}>
+                                                <td className="text-muted fw-semibold">{item.id}</td>
+                                                <td>
+                                                    <img
+                                                        src={item.imagem_url}
+                                                        alt={item.marca}
+                                                        style={{ width: '35px', height: '35px', objectFit: 'contain' }}
+                                                        onError={(e) => { e.target.src }}
+                                                    ></img>
+                                                </td>
+                                                <td>
+                                                    <span className="fw-bold text-dark">{item.model}</span>
+                                                </td>
+                                                <td>{item.year}</td>
+                                                <td>
+                                                    <span className="badge bg-light text-dark border font-monospace px-2.5 py-1.5">{item.license_plate}</span>
+                                                </td>
+                                                <td>
+                                                    <span className={`badge px-2.5 py-1.5 rounded-pill ${item.ativo === 'A' ? 'bg-sucess-subtle text-sucess' : 'bg-danger-subtle text-danger'}`}>
+                                                        <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }}></i>
+                                                        {item.status === 'A' ? 'Ativo' : 'Inativo'}
+                                                    </span>
+                                                </td>
+                                                <td className="text-end">
+                                                    {/* Atalho rápido para ver ordens de serviço do carro */}
+                                                    <button className="btn btn-primary btn-sm me-1 fw-semibold px-2.5">
+                                                        <i className="bi bi-tools me-1"></i> Serviços
+                                                    </button>
+                                                    {/* Botões padrão de Ação da Oficina */}
+                                                    <button className="btn btn-outline-primary btn-sm me-1" title="Editar Veículo">
+                                                        <i className="bi bi-pencil-square"></i>
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        title="Desvincular Veículo"
+                                                        onClick={() => LaodDelete(item.id)}
+                                                    >
+                                                        <i className="bi bi-trash3-fill"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7" className="text-center py-5 bg-light-subtle rounded-bottom">
+                                                <div className="d-flex flex-column align-items-center justify-content-center text-muted">
+                                                    <i className="bi bi-car-front fs-1 text-secondary mb-3 opacity-50"></i>
+                                                    <h6 className="fw-bold text-dark mb-1">Nenhum veículo vinculado</h6>
+                                                    <p className="small text-muted mb-3" style={{ maxWidth: '280px' }}>
+                                                        Este cliente ainda não possui carros associados ao perfil dele nesta oficina.
+                                                    </p>
+                                                    <button
+                                                        className="btn btn-sm btn-primary fw-semibold px-3"
+                                                        onClick={() => setmodalaberto(true)}
+                                                    >
+                                                        <i className="bi bi-plus-circle me-1"></i> Vincular Primeiro Veículo
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )
+                                    }
                                 </tbody>
                             </table>
                         </div>

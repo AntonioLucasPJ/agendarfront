@@ -107,7 +107,7 @@ export const Rotas = () => {
                                     </RoutesProtect>
                                 }>
                                 </Route>
-                                <Route path="/clientsperfil/:id_client" element={
+                                <Route path="/clientsperfil/:id_user" element={
                                     <RoutesProtect>
                                         <PageClientPerfil></PageClientPerfil>
                                     </RoutesProtect>

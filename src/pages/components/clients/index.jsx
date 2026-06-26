@@ -14,7 +14,7 @@ export function Clients(props) {
         }
         <td scope="row">{props.telefone}</td>
         <td className="aling-midle" style={{ width: '150px' }}>
-            {props.ativo === 'A' ? (
+            {props.status === 'A' ? (
                 <span className="badge bg-sucess-subtle text-success px-2.5 py-1.5 rounded-pill fw-semibold border-sucess-subtile" style={{ fontSize: '12px' }}>
                     <FcOk size={18} className="me-1"></FcOk>Ativo
                 </span>
