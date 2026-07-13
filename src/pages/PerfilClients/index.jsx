@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { LoadingScreen } from "../components/loading"
 import { Link, useLocation, useParams } from "react-router"
 import { Navbar } from "../components/navbar"
@@ -7,11 +7,16 @@ import { ModalAddVehicle } from "../components/ModalVehicle"
 import { ModalDelete } from "../components/Modal"
 import { AlertMessage } from "../components/Alert"
 import { id, tr } from "date-fns/locale"
+import RedefinidorSenha from "../components/ModalRedefinir"
 
 export function PageClientPerfil() {
     const location = useLocation()
     const awaiting = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
+    //Redefinir Senha
+    const [mostrarmodalsenha, setmostrarmodalsenha] = useState(false)
+    const [novasenha, setnovasenha] = useState('')
+    const [confirmasenha, setconfirmasenha] = useState('')
+    const [errorsenha, seterrosenha] = useState('')
     //Informações Pessoais
     const { perfilclient, perfilcpf, perfilemail, perfiltelefone, perfilendereco } = location.state || {}
     const [client, setclient] = useState([])
@@ -81,15 +86,30 @@ export function PageClientPerfil() {
         if (e) e.preventDefault()
         setloading(true)
         try {
-            await awaiting(1500)
-            const res = await api.put(`/users/edit/${id_user}`, {
+            const payload = {
                 name: client.name,
                 email: client.email,
                 cpf: client.cpf,
                 telefone: client.telefone
-            })
+            }
+            await awaiting(1500)
+            const res = await api.put(`/users/edit/${id_user}`, payload)
             setloading(false)
-            setclient(res.data)
+            if (res.data) {
+                const usuarioatualizado = res.data.edit[0]
+                setclient({
+                    name: usuarioatualizado.name,
+                    cpf: usuarioatualizado.cpf,
+                    telefone: usuarioatualizado.telefone,
+                    email: usuarioatualizado.email
+                })
+                seteditandonome(false)
+                seteditandocpf(false)
+                seteditandotelefone(false)
+                seteditandoemail(false)
+            } else {
+                setclient(payload)
+            }
         } catch (error) {
             console.log(error)
         }
@@ -126,19 +146,81 @@ export function PageClientPerfil() {
     useEffect(() => {
         if (id_user) {
             const novoDados = {
-                name:perfilclient || '',
-                cpf:perfilcpf || '',
+                name: perfilclient || '',
+                cpf: perfilcpf || '',
                 telefone: perfiltelefone || '',
                 email: perfilemail || ''
             };
             setclient(novoDados)
         }
     }, [id_user])
+    const formatarCPF = (value) => {
+        // 1. Remove tudo o que não for número
+        const apenasNumeros = value.replace(/\D/g, "");
+
+        // 2. Limita o máximo a 11 dígitos numéricos
+        const numerosLimitados = apenasNumeros.slice(0, 11);
+
+        // 3. Aplica a máscara progressivamente baseado no tamanho
+        return numerosLimitados
+            .replace(/(\d{3})(\d)/, "$1.$2")       // Coloca o primeiro ponto
+            .replace(/(\d{3})(\d)/, "$1.$2")       // Coloca o segundo ponto
+            .replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Coloca o hífen
+    };
+    const formatarTelefone = (value) => {
+        // 1. Remove tudo o que não for número
+        const apenasNumeros = value.replace(/\D/g, "");
+
+        // 2. Limita o máximo a 11 dígitos numéricos (DDD + 9 dígitos)
+        const numerosLimitados = apenasNumeros.slice(0, 11);
+
+        // 3. Aplica a máscara dinamicamente com base na quantidade de números
+        if (numerosLimitados.length <= 10) {
+            // Formato para Telefone Fixo: (XX) XXXX-XXXX
+            return numerosLimitados
+                .replace(/^(\d{2})(\d)/g, "($1) $2")
+                .replace(/(\d{4})(\d)/, "$1-$2");
+        } else {
+            // Formato para Celular: (XX) XXXXX-XXXX
+            return numerosLimitados
+                .replace(/^(\d{2})(\d)/g, "($1) $2")
+                .replace(/(\d{5})(\d)/, "$1-$2");
+        }
+    };
+    const FormatarEmail = (value) => {
+        if (value.includes("@")) {
+            return value
+        } else {
+            return `Email nao valido`
+        }
+    }
+    async function handleRedefinirSenha(informacoes) {
+        if (informacoes.novasenha.length < 6) {
+            seterrosenha("A senha deve ter no miminio 6 digitos")
+            return;
+        }
+        if(informacoes.novasenha !== informacoes.confirmarsenha){
+            seterrosenha("As senhas nao sao iguais")
+            return;
+        }
+        setloading(true)
+        try {
+            const res = res.data
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    
+    function CleanModalRedefinirsenha(){
+        seterrosenha('')
+        setmostrarmodalsenha(!mostrarmodalsenha)
+    }
     return (
         <div className="container-fluid mt-page">
             {loading && (
                 <LoadingScreen></LoadingScreen>
             )}
+
             <Navbar></Navbar>
             <ModalAddVehicle
                 isOpen={modalaberto}
@@ -146,6 +228,13 @@ export function PageClientPerfil() {
                 onConfirm={(veiculoselecionado, placa, cor) => SalvarVeiculoNoBanco(veiculoselecionado, placa, cor)}
                 nomeClient={'teste'}
             ></ModalAddVehicle>
+            {mostrarmodalsenha && (
+                <RedefinidorSenha
+                    handleRedefinirSenha={(e) => handleRedefinirSenha(e)}
+                    setMostrarModalSenha={() => CleanModalRedefinirsenha()}
+                    erroSenha={errorsenha}
+                ></RedefinidorSenha>
+            )}
             {alertdelete && (
                 <ModalDelete
                     titulo='Deletar'
@@ -159,13 +248,12 @@ export function PageClientPerfil() {
             )}
             <div className="d-flex justify-content-between align-items-center mb-4 mt-3">
                 <div>
-                    <h2 className="fw-bold m-0 text-dark">Gestão do Cliente: {name}</h2>
+                    <h2 className="fw-bold m-0 text-dark">Gestão do Cliente:</h2>
                 </div>
                 <Link className='btn btn-outline-primary fw-semibold px-4' to="/appointments/add">
                     Novo Agendamento
                 </Link>
             </div>
-
             <div className="row g-4">
                 <div className="col-lg-5 cofl-md-12">
                     <div className="card p-4 borde shadow-sm roundend-3 bg-white mb-4">
@@ -174,17 +262,27 @@ export function PageClientPerfil() {
                                 {client.name}
                             </div>
                             <div>
-                                <h4 className="fw-bold m-0 text-dark">{perfilclient}</h4>
+                                <h4 className="fw-bold m-0 text-dark">{client.name}</h4>
                                 <p className="text-muted m-0 small">
-                                    <i className="bi bi-telephone me-2"></i>{perfiltelefone}
+                                    <i className="bi bi-telephone me-2"></i>{client.telefone}
                                 </p>
                                 <p className="text-muted m-0 small">
-                                    <i className="bi bi-envelope me-2"></i>{perfilemail}
+                                    <i className="bi bi-envelope me-2"></i>{client.email}
                                 </p>
                                 <p className="text-muted m-0 small">
                                     <i className="bi bi-geo-alt fill me-1"></i>{perfilendereco}
                                 </p>
                             </div>
+                        </div>
+                        <div className="col-md-12 mt-3">
+                            <button
+                                type="button"
+                                className="btn btn-outline-danger btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+                                onClick={() => setmostrarmodalsenha(true)}
+                            >
+                                <i className="bi bi-shield-lock"></i>
+                                Redefinir Senha do usuario
+                            </button>
                         </div>
                     </div>
                     <ul className="nav nav-tabs border-bottom-0 mb-0">
@@ -209,7 +307,7 @@ export function PageClientPerfil() {
                         {abaAtiva === 'pessoais' ? (
                             <div>
                                 <h4 className="fw-bold text-dark mb-4">Dados Básicos</h4>
-                                <form onSubmit={(e)=>handleAtualizar(e)}>
+                                <form onSubmit={(e) => handleAtualizar(e)}>
                                     <div className="row g-3">
                                         <div className="col-md-12">
                                             <label className="form-label text-secondary fw-semibold">Nome</label>
@@ -221,11 +319,18 @@ export function PageClientPerfil() {
                                                     onChange={(e) => setclient({ ...client, name: e.target.value })}
                                                     readOnly={!editandonome}
                                                 ></input>
-                                                <button className="btn btn-primary"
-                                                    onClick={() => seteditandonome(!editandonome)}>
+                                                <button className={editandonome ? 'btn btn-success' : 'btn btn-primary'}
+                                                    type="button"
+                                                    onClick={() => seteditandonome(!editandonome)}
+                                                    disabled={client.name.length <= 6 ? true : false}
+                                                >
                                                     <i className="bi bi-pencil-square"></i>
                                                 </button>
+
                                             </div>
+                                            {client.name.length <= 6 && (
+                                                <span >O nome deve ter no minino 6 caracteres</span>
+                                            )}
                                         </div>
                                         <div className="col-md-12">
                                             <label className="form-label text-secondary fw-semibold">CPF</label>
@@ -234,14 +339,25 @@ export function PageClientPerfil() {
                                                     type="text"
                                                     className="form-control bg-light"
                                                     value={client.cpf || ''}
-                                                    onChange={(e) => setclient({ ...client, cpf: e.target.value })}
+                                                    placeholder="000.000.000-00"
+                                                    maxLength={14}
+                                                    onChange={(e) => {
+                                                        const formatado = formatarCPF(e.target.value)
+                                                        setclient({ ...client, cpf: formatado })
+                                                    }}
                                                     readOnly={!editandocpf}
                                                 ></input>
-                                                <button className="btn btn-primary"
-                                                    onClick={() => seteditandocpf(!editandocpf)}>
+                                                <button className={editandocpf ? 'btn btn-success' : 'btn btn-primary'}
+                                                    type="button"
+                                                    onClick={() => seteditandocpf(!editandocpf)}
+                                                    disabled={client.cpf.length < 14 ? true : false}
+                                                >
                                                     <i className="bi bi-pencil-square"></i>
                                                 </button>
                                             </div>
+                                            {client.cpf.length < 14 && (
+                                                <span >O CPF deve ter  11 caracteres</span>
+                                            )}
                                         </div>
                                         <div className="col-md-12">
                                             <label className="form-label text-secondary fw-semibold">Telefone</label>
@@ -249,14 +365,23 @@ export function PageClientPerfil() {
                                                 <input
                                                     type="text"
                                                     className="form-control bg-light"
-                                                    value={client.telefone}
+                                                    value={client.telefone || ''}
                                                     readOnly={!editandotelefone}
-                                                    onChange={(e) => setclient({ ...client, telefone: e.target.value })}
+                                                    maxLength={15}
+                                                    onChange={(e) => {
+                                                        const formatel = formatarTelefone(e.target.value)
+                                                        setclient({ ...client, telefone: formatel })
+                                                    }}
                                                 ></input>
-                                                <button className="btn btn-primary" onClick={() => seteditandotelefone(!editandotelefone)}>
+                                                <button className={editandotelefone ? "btn btn-success" : "btn btn-primary"}
+                                                    type="button" onClick={() => seteditandotelefone(!editandotelefone)}
+                                                    disabled={client.telefone.length < 11 ? true : false}>
                                                     <i className="bi bi-pencil-square"></i>
                                                 </button>
                                             </div>
+                                            {client.telefone.length < 15 && (
+                                                <span >Coloque o DD + 9 + Numero</span>
+                                            )}
                                         </div>
                                         <div className="col-md-12">
                                             <label className="form-label text-secondary fw-semibold">Email</label>
@@ -264,20 +389,31 @@ export function PageClientPerfil() {
                                                 <input
                                                     type="text"
                                                     className="form-control bg-light"
-                                                    value={client.email}
-                                                    readOnly={!editandoemail}></input>
-                                                <button className="btn btn-primary" onClick={() => seteditandoemail(!editandoemail)}>
+                                                    value={client.email || ''}
+                                                    readOnly={!editandoemail}
+                                                    onChange={(e) => {
+                                                        setclient({ ...client, email: e.target.value })
+                                                    }}
+                                                ></input>
+                                                <button
+                                                    className={editandoemail ? 'btn btn-success' : 'btn btn-primary'}
+                                                    onClick={() => seteditandoemail(!editandoemail)}
+                                                    type="button"
+                                                    disabled={!client.email.includes("@") ? true : false}>
                                                     <i className="bi bi-pencil-square"></i>
                                                 </button>
                                             </div>
+                                            {!client.email.includes('@') && (
+                                                <span >Digite @ + dominio + .com</span>
+                                            )}
                                         </div>
                                         <button
-                                            className={`btn ${editandocpf ? 'btn-sucess' : 'btn-primary'}`}
-                                            type="button"
+                                            className={`btn ${editandocpf ? 'btn-success' : 'btn-primary'}`}
+                                            type="submit"
                                             onClick={() => seteditandocpf(!editandocpf)}
                                         >
-                                            <i className={editandocpf ? 'bi bi-check-lg' : 'bi bi-prencil-square'}></i>
-                                            Atualizar
+                                            <i className={editandocpf ? 'bi bi-check-lg me-2' : 'bi bi-prencil-square'}></i>
+                                            Salvar Alteracoes
                                         </button>
                                     </div>
                                 </form>
@@ -385,7 +521,7 @@ export function PageClientPerfil() {
                                                     <span className="badge bg-light text-dark border font-monospace px-2.5 py-1.5">{item.license_plate}</span>
                                                 </td>
                                                 <td>
-                                                    <span className={`badge px-2.5 py-1.5 rounded-pill ${item.ativo === 'A' ? 'bg-sucess-subtle text-sucess' : 'bg-danger-subtle text-danger'}`}>
+                                                    <span className={`badge px-3 py-2 rounded-pill ${item.status === 'A' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
                                                         <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }}></i>
                                                         {item.status === 'A' ? 'Ativo' : 'Inativo'}
                                                     </span>
