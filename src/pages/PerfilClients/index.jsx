@@ -199,21 +199,40 @@ export function PageClientPerfil() {
             seterrosenha("A senha deve ter no miminio 6 digitos")
             return;
         }
-        if(informacoes.novasenha !== informacoes.confirmarsenha){
+        if (informacoes.novasenha !== informacoes.confirmarsenha) {
             seterrosenha("As senhas nao sao iguais")
             return;
         }
         setloading(true)
+        const dadosapi = {
+            id_user: id_user,
+            password: informacoes.novasenha
+        }
         try {
-            const res = res.data
+            await awaiting(1500)
+            const res = await api.put("/admin/resetuserpass",dadosapi)
+            await CleanModalRedefinirsenha()
+            await awaiting(1000)
+            setalert(!alert)
+            setalertmsg(res.data.message)   
+            await awaiting(3000)
+            CleanAlert()
         } catch (error) {
             console.log(error)
+            
+        }finally{
+            setloading(false)
         }
     }
-    
-    function CleanModalRedefinirsenha(){
+
+    function CleanModalRedefinirsenha() {
         seterrosenha('')
         setmostrarmodalsenha(!mostrarmodalsenha)
+    }
+    function CleanAlert(){
+        setalert(false)
+        setalertmsg("")
+        window.location.reload()
     }
     return (
         <div className="container-fluid mt-page">
